@@ -14,25 +14,23 @@ import java.sql.Timestamp;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-public class Post {
+public class FollowMap {
 
     @Id
     @GeneratedValue
     private Long id;
 
-    @Column(length = 64)
-    private String caption;
+    @ManyToOne
+    @JoinColumn(name="followed_by", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private User followed_by;
 
     @ManyToOne
-    @JoinColumn(name="fk_user", nullable = false)
+    @JoinColumn(name="followed_to", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private User user;
+    private User followerd_to;
 
     @NotNull
     private Timestamp timeStamp;
-
-    @NotNull
-    private Timestamp edited_at;
-
 
 }

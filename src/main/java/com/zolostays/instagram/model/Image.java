@@ -14,25 +14,22 @@ import java.sql.Timestamp;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-public class Post {
+public class Image {
 
     @Id
     @GeneratedValue
     private Long id;
 
-    @Column(length = 64)
-    private String caption;
-
     @ManyToOne
-    @JoinColumn(name="fk_user", nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private User user;
+    @JoinColumn(name="fk_post")
+    @OnDelete(action= OnDeleteAction.CASCADE)
+    private Post post;
+
+    @NotNull
+    private String image_url;
 
     @NotNull
     private Timestamp timeStamp;
-
-    @NotNull
-    private Timestamp edited_at;
 
 
 }
