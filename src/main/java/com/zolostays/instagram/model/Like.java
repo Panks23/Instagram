@@ -14,8 +14,9 @@ import java.sql.Timestamp;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name="like_table")
 @Entity
-public class Like_table {
+public class Like {
 
     @Id
     @GeneratedValue
