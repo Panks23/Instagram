@@ -6,11 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
-import org.hibernate.validator.constraints.UniqueElements;
-
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
-import java.sql.Timestamp;
 import java.util.Date;
 
 @Data
@@ -26,6 +21,4 @@ public class UserDTO {
     private Date dob;
     private Gender gender;
     private int phoneNo;
-    private Timestamp timeStamp;
-
 }

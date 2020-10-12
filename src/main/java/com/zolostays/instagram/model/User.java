@@ -5,9 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.validator.constraints.UniqueElements;
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.sql.Timestamp;
 import java.util.Date;
 
@@ -15,6 +13,7 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"username"}))
 public class User {
 
     @Id
@@ -22,13 +21,12 @@ public class User {
     private Long id;
 
     @Column(length = 64)
-    @UniqueElements
     private String username;
 
-    @NotNull
+    @Column(nullable = false, unique = true)
     private String first_name;
 
-    @NotNull
+    @Column(nullable = false)
     private String last_name;
 
     private Date dob;

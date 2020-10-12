@@ -12,7 +12,7 @@ public class Mapper {
         List<Object> result = new ArrayList<>();
         result.add(o);
         return new ResponseDTO().setStatus(200).setMessage("You have got response")
-                .setCount(0).setApi_element("").setResult(result);
+                .setCount(result.size()).setApi_element("").setResult(result);
     }
 
 

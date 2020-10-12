@@ -8,7 +8,6 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.sql.Timestamp;
 
 @Data
@@ -32,7 +31,7 @@ public class Post {
     @CreationTimestamp
     private Timestamp timeStamp;
 
-    @NotNull
+    @Column(nullable = false)
     private Timestamp edited_at;
 
 

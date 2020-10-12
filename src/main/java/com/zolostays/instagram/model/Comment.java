@@ -8,7 +8,6 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.sql.Timestamp;
 
 
@@ -22,7 +21,7 @@ public class Comment {
     @GeneratedValue
     private Long id;
 
-    @NotNull
+    @Column(nullable = false)
     private String comment;
 
     @ManyToOne
