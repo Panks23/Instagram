@@ -4,6 +4,7 @@ package com.zolostays.instagram.model;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -32,6 +33,6 @@ public class Like {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
 
-    @NotNull
+    @CreationTimestamp
     private Timestamp timeStamp;
 }

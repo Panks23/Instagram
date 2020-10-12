@@ -4,6 +4,7 @@ import com.zolostays.instagram.Gender;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.validator.constraints.UniqueElements;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -37,7 +38,7 @@ public class User {
 
     private int phoneNo;
 
-    @NotNull
+    @CreationTimestamp
     private Timestamp timeStamp;
 
 }
