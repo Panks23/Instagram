@@ -7,8 +7,8 @@ import java.util.Optional;
 public interface IPostService {
 
     ResponseDTO<Optional<PostDTO>> getPost(Long id);
-    ResponseDTO getAllPost();
+    ResponseDTO getAllPost(Long user_id);
     ResponseDTO deletePost(Long id);
     ResponseDTO createPost(PostDTO postDTO, Long id);
-    ResponseDTO updatePost(PostDTO postDTO);
+    ResponseDTO updatePost(PostDTO postDTO, Long id);
 }

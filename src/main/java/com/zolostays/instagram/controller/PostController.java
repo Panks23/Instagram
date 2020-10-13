@@ -19,4 +19,26 @@ public class PostController {
         ResponseDTO responseDTO = postService.createPost(postDTO, id);
         return responseDTO;
     }
+
+    @DeleteMapping("/{user_id}/post/{id}")
+    public ResponseDTO deletePost(@PathVariable("id") Long id){
+        ResponseDTO responseDTO = postService.deletePost(id);
+        return responseDTO;
+    }
+
+    @GetMapping("/{id}/post")
+    public ResponseDTO getAllPost(@PathVariable("id") Long user_id){
+        ResponseDTO responseDTO = postService.getAllPost(user_id);
+        return  responseDTO;
+    }
+
+    @GetMapping("/{user_id}/post/{id}")
+    public ResponseDTO getPostById(@PathVariable("id") Long id){
+        return postService.getPost(id);
+    }
+
+    @PutMapping("/{user_id}/post")
+    public ResponseDTO updatePost(@RequestBody PostDTO postDTO, @PathVariable("user_id") Long id){
+        return postService.updatePost(postDTO, id);
+    }
 }

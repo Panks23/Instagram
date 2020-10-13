@@ -1,5 +1,6 @@
 package com.zolostays.instagram.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -29,6 +30,7 @@ public class Post {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
 
+    @JsonManagedReference
     @OneToMany(mappedBy="post")
     private List<Image> imageList;
 

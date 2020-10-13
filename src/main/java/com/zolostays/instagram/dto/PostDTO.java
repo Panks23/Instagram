@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import java.sql.Timestamp;
+import java.util.List;
 
 
 @Data
@@ -15,7 +16,7 @@ public class PostDTO {
 
     private Long id;
     private String caption;
-    private ImageDTO imageDTO;
+    private List<ImageDTO> listImageDTO;
     private UserDTO userDTO;
     private Timestamp timestamp;
     private Timestamp edited_at;

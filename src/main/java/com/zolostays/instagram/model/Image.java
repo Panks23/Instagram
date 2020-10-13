@@ -1,5 +1,6 @@
 package com.zolostays.instagram.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,6 +21,7 @@ public class Image {
     @GeneratedValue
     private Long id;
 
+    @JsonBackReference
     @ManyToOne
     @JoinColumn(name="fk_post")
     @OnDelete(action= OnDeleteAction.CASCADE)
