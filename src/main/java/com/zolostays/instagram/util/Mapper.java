@@ -20,4 +20,9 @@ public class Mapper {
         return new ResponseDTO().setStatus(200).setMessage("You have got response")
                 .setCount(result.size()).setApi_element("").setResult(result);
     }
+
+    public static ResponseDTO objectDoesNotExist(){
+        return new ResponseDTO().setStatus(401).setMessage("You have got no response please check your api")
+                .setResult(new ArrayList()).setCount(0).setApi_element("");
+    }
 }

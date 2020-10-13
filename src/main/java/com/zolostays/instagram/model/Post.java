@@ -9,6 +9,7 @@ import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -27,6 +28,10 @@ public class Post {
     @JoinColumn(name="fk_user", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
+
+    @OneToMany(mappedBy="post")
+    private List<Image> imageList;
+
 
     @CreationTimestamp
     private Timestamp timeStamp;

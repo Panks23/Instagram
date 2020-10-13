@@ -11,13 +11,9 @@ import java.sql.Timestamp;
 @NoArgsConstructor
 @AllArgsConstructor
 @Accessors(chain = true)
-public class PostDTO {
+public class ImageDTO {
 
     private Long id;
-    private String caption;
-    private ImageDTO imageDTO;
-    private UserDTO userDTO;
+    private String image_url;
     private Timestamp timestamp;
-    private Timestamp edited_at;
-
 }
