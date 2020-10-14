@@ -7,8 +7,7 @@ import com.zolostays.instagram.repository.UserRepository;
 import com.zolostays.instagram.util.Mapper;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
-
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.Optional;
 
 
@@ -29,33 +28,49 @@ public class UserServiceImpl implements IUserService {
         if(optionalUser.isPresent()){
             User user = optionalUser.get();
             userDTO = modelMapper.map(user, UserDTO.class);
+            return Mapper.responseDTOSingle(userDTO, "You have got user");
         }else{
-            userDTO = null;
+            return Mapper.responseDTONotFound(new LinkedList<>(),"User doesn't exist with the given user id");
         }
-        Optional<UserDTO> userDTOOptional = Optional.ofNullable(userDTO);
-        ResponseDTO<Optional<UserDTO>> responseDTO = Mapper.responseDTOSingle(userDTOOptional);
-        return responseDTO;
     }
 
     @Override
     public ResponseDTO deleteUser(Long id) {
-        userRepository.deleteById(id);
-        return Mapper.responseDTO(new ArrayList<>());
+        if(userRepository.existsById(id)){
+            userRepository.deleteById(id);
+            return Mapper.objectDeleted("You have deleted User");
+        }else{
+            return Mapper.responseDTONotFound(new LinkedList<>(), "User can't be deleted because it doesn't exist");
+        }
+
     }
 
     @Override
     public ResponseDTO addUser(UserDTO userDTO) {
         User user = modelMapper.map(userDTO, User.class);
-        user = userRepository.save(user);
-        UserDTO resultUserDTO = modelMapper.map(user, UserDTO.class);
-        return Mapper.responseDTOSingle(resultUserDTO);
+        if(!userRepository.existsByUsername(user.getUsername())) {
+            user = userRepository.save(user);
+            UserDTO resultUserDTO = modelMapper.map(user, UserDTO.class);
+            return Mapper.responseDTOSingle(resultUserDTO, "User created");
+        }else{
+            return Mapper.objectNotCreated("Username Already Exist");
+        }
     }
 
     @Override
     public ResponseDTO updateUser(UserDTO userDTO) {
+        if(userRepository.existsById(userDTO.getId())) {
+            return Mapper.responseDTOSingle(createOrUpdateUser(userDTO), "User updated");
+        }else{
+            return Mapper.responseDTOSingle(createOrUpdateUser(userDTO), "User was not existing before so user got created");
+        }
+    }
+
+    public UserDTO createOrUpdateUser(UserDTO userDTO){
         User user = modelMapper.map(userDTO, User.class);
+        System.out.println(user);
         user = userRepository.save(user);
         UserDTO resultUserDTO = modelMapper.map(user, UserDTO.class);
-        return Mapper.responseDTOSingle(resultUserDTO);
+        return resultUserDTO;
     }
 }

@@ -13,17 +13,16 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"username"}))
 public class User {
 
     @Id
     @GeneratedValue
     private Long id;
 
-    @Column(length = 64)
+    @Column(name="username", length = 64, unique = true)
     private String username;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String first_name;
 
     @Column(nullable = false)

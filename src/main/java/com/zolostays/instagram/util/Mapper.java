@@ -1,38 +1,43 @@
 package com.zolostays.instagram.util;
 
 import com.zolostays.instagram.dto.ResponseDTO;
-import org.dom4j.rule.Mode;
-import org.modelmapper.ModelMapper;
-import org.springframework.web.bind.annotation.RequestBody;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 public class Mapper {
 
-    public static ResponseDTO responseDTOSingle(Object o){
+    public static ResponseDTO responseDTOSingle(Object o, String message){
         List<Object> result = new ArrayList<>();
         result.add(o);
-        return new ResponseDTO().setStatus(200).setMessage("You have got response")
+        return new ResponseDTO().setStatus(200).setMessage(message)
                 .setCount(result.size()).setApi_element("").setResult(result);
     }
 
 
-    public static ResponseDTO responseDTO(List<?> result){
-        return new ResponseDTO().setStatus(200).setMessage("You have got response")
+    public static ResponseDTO responseDTO(List<?> result, String message){
+        return new ResponseDTO().setStatus(200).setMessage(message)
                 .setCount(result.size()).setApi_element("").setResult(result);
     }
 
-    public static ResponseDTO objectDoesNotExist(){
-        return new ResponseDTO().setStatus(401).setMessage("You have got no response please check your api")
+    public static ResponseDTO responseDTONotFound(List<?> result, String message){
+        return new ResponseDTO().setStatus(404).setMessage(message)
+                .setCount(result.size()).setApi_element("").setResult(result);
+    }
+
+
+    public static ResponseDTO objectDoesNotExist(String message){
+        return new ResponseDTO().setStatus(401).setMessage(message)
                 .setResult(new ArrayList()).setCount(0).setApi_element("");
     }
 
-    public static ResponseDTO objectDeleted(){
-        return new ResponseDTO().setApi_element("").setCount(0).setResult(new ArrayList()).setMessage("Deleted")
+    public static ResponseDTO objectDeleted(String message){
+        return new ResponseDTO().setApi_element("").setCount(0).setResult(new ArrayList()).setMessage(message)
                 .setStatus(200);
+    }
+
+    public static ResponseDTO objectNotCreated(String message){
+        return new ResponseDTO().setApi_element("").setCount(0).setResult(new ArrayList()).setMessage(message)
+                .setStatus(400);
     }
 
 //    public static List<?> mapList(List<?> source, List<?> target){

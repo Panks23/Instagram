@@ -45,16 +45,16 @@ public class PostServiceImpl implements IPostService{
             modelMapper.typeMap(Post.class, PostDTO.class).addMapping(Post::getUser, PostDTO::setUserDTO)
                     .addMapping(Post::getImageList, PostDTO::setListImageDTO);
             PostDTO postDTO = modelMapper.map(post, PostDTO.class);
-            return Mapper.responseDTOSingle(postDTO);
+            return Mapper.responseDTOSingle(postDTO, "You have got the response for the given post id");
         }
-        return Mapper.objectDoesNotExist();
+        return Mapper.objectDoesNotExist("Post doesn't exist for the given ID");
     }
 
     @Override
     public ResponseDTO getAllPost(Long user_id) {
         User user = userRepository.findById(user_id).get();
         List<Post> listOfPost = postRepository.findAllByUser(user);
-        return Mapper.responseDTO(listOfPost);
+        return Mapper.responseDTO(listOfPost, "You have recieved post for the given id");
     }
 
     @Override
@@ -63,7 +63,7 @@ public class PostServiceImpl implements IPostService{
         Post post = postRepository.findById(id).get();
         imageRepository.deleteByPost(post);
         postRepository.deleteById(id);
-        return Mapper.objectDeleted();
+        return Mapper.objectDeleted("You have deleted object");
     }
 
     @Override
@@ -93,9 +93,9 @@ public class PostServiceImpl implements IPostService{
                     );
             resultPostDTO.setUserDTO(userDTO.get());
             resultPostDTO.setListImageDTO(listImageDTO);
-            return Mapper.responseDTOSingle(resultPostDTO);
+            return Mapper.responseDTOSingle(resultPostDTO, "Your Post has been created");
         }
-        return Mapper.objectDoesNotExist();
+        return Mapper.objectDoesNotExist("User doesn't exist to create post for the given user id");
     }
 
     @Override
