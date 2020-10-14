@@ -20,7 +20,7 @@ public class Mapper {
     }
 
     public static ResponseDTO responseDTONotFound(List<?> result, String message){
-        return new ResponseDTO().setStatus(404).setMessage(message)
+        return new ResponseDTO().setStatus(200).setMessage(message)
                 .setCount(result.size()).setApi_element("").setResult(result);
     }
 

@@ -7,6 +7,9 @@ import com.zolostays.instagram.repository.UserRepository;
 import com.zolostays.instagram.util.Mapper;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
+
+import javax.swing.text.html.Option;
+import java.lang.reflect.Type;
 import java.util.LinkedList;
 import java.util.Optional;
 
@@ -22,16 +25,20 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public  ResponseDTO<Optional<UserDTO>> getUser(Long id) {
-        Optional<User> optionalUser = userRepository.findById(id);
-        UserDTO userDTO;
+    public  ResponseDTO getUser(Long id) {
+        Optional<User> optionalUser = getUserById(id);
         if(optionalUser.isPresent()){
             User user = optionalUser.get();
-            userDTO = modelMapper.map(user, UserDTO.class);
+            UserDTO userDTO = modelMapper.map(user, UserDTO.class);
             return Mapper.responseDTOSingle(userDTO, "You have got user");
         }else{
             return Mapper.responseDTONotFound(new LinkedList<>(),"User doesn't exist with the given user id");
         }
+    }
+
+    @Override
+    public Optional<User> getUserById(Long id){
+        return userRepository.findById(id);
     }
 
     @Override

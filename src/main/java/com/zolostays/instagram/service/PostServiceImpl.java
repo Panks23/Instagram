@@ -12,9 +12,10 @@ import com.zolostays.instagram.repository.PostRepository;
 import com.zolostays.instagram.repository.UserRepository;
 import com.zolostays.instagram.util.Mapper;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.springframework.stereotype.Component;
-
 import javax.transaction.Transactional;
+import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -34,6 +35,8 @@ public class PostServiceImpl implements IPostService{
         this.userService = userService;
         this.imageRepository = imageRepository;
         this.userRepository = userRepository;
+        modelMapper.typeMap(Post.class, PostDTO.class).addMapping(Post::getUser, PostDTO::setUser_DTO)
+                .addMapping(Post::getImageList, PostDTO::setList_image_DTO);
     }
 
 
@@ -42,8 +45,6 @@ public class PostServiceImpl implements IPostService{
         Optional<Post> optionalPost = postRepository.findById(id);
         if(optionalPost.isPresent()){
             Post post = optionalPost.get();
-            modelMapper.typeMap(Post.class, PostDTO.class).addMapping(Post::getUser, PostDTO::setUserDTO)
-                    .addMapping(Post::getImageList, PostDTO::setListImageDTO);
             PostDTO postDTO = modelMapper.map(post, PostDTO.class);
             return Mapper.responseDTOSingle(postDTO, "You have got the response for the given post id");
         }
@@ -52,50 +53,67 @@ public class PostServiceImpl implements IPostService{
 
     @Override
     public ResponseDTO getAllPost(Long user_id) {
-        User user = userRepository.findById(user_id).get();
-        List<Post> listOfPost = postRepository.findAllByUser(user);
-        return Mapper.responseDTO(listOfPost, "You have recieved post for the given id");
+        if(userRepository.existsById(user_id)) {
+            User user = userRepository.findById(user_id).get();
+            List<Post> listOfPost = postRepository.findAllByUser(user);
+            Type listType = new TypeToken<List<PostDTO>>(){}.getType();
+            List<PostDTO> postDTOList = modelMapper.map(listOfPost, listType);
+            return Mapper.responseDTO(postDTOList, "You have recieved post for the given user id");
+        }else{
+            return Mapper.objectDoesNotExist("User doesn't exist");
+        }
     }
 
     @Override
     @Transactional
     public ResponseDTO deletePost(Long id) {
-        Post post = postRepository.findById(id).get();
-        imageRepository.deleteByPost(post);
-        postRepository.deleteById(id);
-        return Mapper.objectDeleted("You have deleted object");
+        if(postRepository.existsById(id)) {
+            Post post = postRepository.findById(id).get();
+            imageRepository.deleteByPost(post);
+            postRepository.deleteById(id);
+            return Mapper.objectDeleted("You have deleted object");
+        }else{
+            return Mapper.objectDoesNotExist("Post doesn't exist by the given post id");
+        }
     }
 
     @Override
     public ResponseDTO createPost(PostDTO postDTO, Long id) {
-        List<ImageDTO> listImageDTO = postDTO.getListImageDTO();
+        List<ImageDTO> listImageDTO = postDTO.getList_image_DTO();
         Post post = modelMapper.map(postDTO, Post.class);
-        Optional<UserDTO> userDTO = userService.getUser(id).getResult().get(0);
-        if(userDTO.isPresent()){
-            User user = modelMapper.map(userDTO.get(), User.class);
+        Optional<User> userOptional = userService.getUserById(id);
+        if(userOptional.isPresent()){
+            Optional<UserDTO> userDTOOptional = Optional.ofNullable(modelMapper.map(userOptional.get(), UserDTO.class));
+            User user = modelMapper.map(userDTOOptional.get(), User.class);
             post.setUser(user);
-            post = postRepository.save(post);
-            Post finalPost = post;
-            List<Image> listOfimage = listImageDTO.stream().map(imageDTO -> {
-                        Image image = modelMapper.map(imageDTO, Image.class);
-                        image.setPost(finalPost);
-                        return image;
-                    })
-                    .collect(
-                            Collectors.toList()
-                    );
-            listOfimage = imageRepository.saveAll(listOfimage);
+            post = savePost(post);
             PostDTO resultPostDTO = modelMapper.map(post, PostDTO.class);
-            listImageDTO = listOfimage.stream().map(image ->
-                    modelMapper.map(image, ImageDTO.class) )
-                    .collect(
-                            Collectors.toList()
-                    );
-            resultPostDTO.setUserDTO(userDTO.get());
-            resultPostDTO.setListImageDTO(listImageDTO);
+            listImageDTO = saveImageForPost(post, listImageDTO);
+            resultPostDTO.setUser_DTO(userDTOOptional.get());
+            resultPostDTO.setList_image_DTO(listImageDTO);
             return Mapper.responseDTOSingle(resultPostDTO, "Your Post has been created");
         }
         return Mapper.objectDoesNotExist("User doesn't exist to create post for the given user id");
+    }
+
+    public Post savePost(Post post){
+        return postRepository.save(post);
+    }
+
+    public List<ImageDTO> saveImageForPost(Post post, List<ImageDTO> listImageDTO){
+        List<Image> listOfimage = listImageDTO.stream().map(imageDTO -> {
+            Image image = modelMapper.map(imageDTO, Image.class);
+            image.setPost(post);
+            return image;
+        }).collect(Collectors.toList());
+        listOfimage = imageRepository.saveAll(listOfimage);
+        listImageDTO = listOfimage.stream().map(image ->
+                modelMapper.map(image, ImageDTO.class) )
+                .collect(
+                        Collectors.toList()
+                );
+
+        return listImageDTO;
     }
 
     @Override

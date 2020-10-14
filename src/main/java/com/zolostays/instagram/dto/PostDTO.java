@@ -16,8 +16,8 @@ public class PostDTO {
 
     private Long id;
     private String caption;
-    private List<ImageDTO> listImageDTO;
-    private UserDTO userDTO;
+    private List<ImageDTO> list_image_DTO;
+    private UserDTO user_DTO;
     private Timestamp timestamp;
     private Timestamp edited_at;
 

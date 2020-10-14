@@ -22,6 +22,6 @@ public class UserDTO {
     private String last_name;
     private Date dob;
     private Gender gender;
-    private int phoneNo;
+    private int phone_no;
     private Timestamp timestamp;
 }
