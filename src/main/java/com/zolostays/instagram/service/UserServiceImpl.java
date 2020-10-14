@@ -7,9 +7,6 @@ import com.zolostays.instagram.repository.UserRepository;
 import com.zolostays.instagram.util.Mapper;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
-
-import javax.swing.text.html.Option;
-import java.lang.reflect.Type;
 import java.util.LinkedList;
 import java.util.Optional;
 
@@ -64,8 +61,9 @@ public class UserServiceImpl implements IUserService {
         }
     }
 
-    @Override
-    public ResponseDTO updateUser(UserDTO userDTO) {
+
+        @Override
+        public ResponseDTO updateUser(UserDTO userDTO) {
         if(userRepository.existsById(userDTO.getId())) {
             return Mapper.responseDTOSingle(createOrUpdateUser(userDTO), "User updated");
         }else{

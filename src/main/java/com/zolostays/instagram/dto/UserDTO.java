@@ -15,8 +15,7 @@ import java.util.Date;
 @NoArgsConstructor
 @Accessors(chain = true)
 public class UserDTO {
-
-    private Long id;
+    Long id;
     private String username;
     private String first_name;
     private String last_name;
