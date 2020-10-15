@@ -10,9 +10,13 @@ import java.util.Optional;
 public interface IUserService {
 
     ResponseDTO<Optional<UserDTO>> getUser(Long id);
+
     Optional<User> getUserById(Long id);
+
     ResponseDTO deleteUser(Long id);
+
     ResponseDTO addUser(UserDTO userDTO);
+
     ResponseDTO updateUser(UserDTO userDTO);
 
 
