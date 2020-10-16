@@ -1,6 +1,7 @@
 package com.zolostays.instagram.service;
 
 import com.zolostays.instagram.dto.CommentDTO;
+import com.zolostays.instagram.dto.PostDTO;
 import com.zolostays.instagram.dto.ResponseDTO;
 import com.zolostays.instagram.model.Comment;
 import com.zolostays.instagram.model.Post;
@@ -10,9 +11,10 @@ import com.zolostays.instagram.repository.PostRepository;
 import com.zolostays.instagram.repository.UserRepository;
 import com.zolostays.instagram.util.Mapper;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.springframework.stereotype.Component;
+import java.lang.reflect.Type;
 import java.util.List;
-import java.util.Map;
 
 
 @Component
@@ -29,6 +31,7 @@ public class CommentServiceImpl  implements ICommentService{
         this.commentRepository = commentRepository;
         this.postRepository = postRepository;
         this.userRepository = userRepository;
+        modelMapper.typeMap(Comment.class, CommentDTO.class).addMapping(Comment::getPost, CommentDTO::setPostDTO);
 
     }
     @Override
@@ -48,26 +51,32 @@ public class CommentServiceImpl  implements ICommentService{
     public ResponseDTO getAllComment(Long user_id, Long post_id) {
         return userRepository.findById(user_id).map(user -> {
             return postRepository.findById(post_id).map(post -> {
-                List<Comment> comments = commentRepository.findAllByPost(post);
-                return Mapper.responseDTO(comments, "All comments of your post");
+                List<Comment> comments = commentRepository.findAllByPostAndCommentIdIsNull(post);
+                Type listType = new TypeToken<List<CommentDTO>>(){}.getType();
+                List<CommentDTO> commentDTO = modelMapper.map(comments, listType);
+                return Mapper.responseDTO(commentDTO, "All comments of your post");
             }).orElse(Mapper.responseDTOSingle(null, "Post doesn't exist"));
         }).orElse(Mapper.responseDTOSingle(null, "User doesn't exist"));
     }
 
     @Override
-    public ResponseDTO replyToComment(CommentDTO commentDTO, Long comment_id, Long user_id) {
-        Comment reply = modelMapper.map(commentDTO, Comment.class);
-        User user = userRepository.findById(user_id).get();
-        reply.setUser(user);
-        Comment comment = commentRepository.findById(comment_id).get();
-        reply.setPost(comment.getPost());
-        reply.setCommentId(comment);
-        Comment resultReply = commentRepository.save(reply);
-        return Mapper.responseDTOSingle(resultReply, "You have replied");
+    public ResponseDTO replyToComment(CommentDTO commentDTO, Long comment_id, Long user_id, Long post_id) {
+        return userRepository.findById(user_id).map( user -> {
+            Comment reply = modelMapper.map(commentDTO, Comment.class);
+            reply.setUser(user);
+            return postRepository.findById(post_id).map(post -> {
+                return commentRepository.findById(comment_id).map(comment -> {
+                    reply.setCommentId(comment);
+                    reply.setPost(comment.getPost());
+                    Comment resultReply  = commentRepository.save(reply);
+                    return Mapper.responseDTOSingle(resultReply, "You have replied");
+                }).orElse(Mapper.responseDTOSingle(null, "Comment Doesn't exist"));
+            }).orElse(Mapper.responseDTOSingle(null, "Post doesn't exist"));
+
+        }).orElse(Mapper.responseDTOSingle(null, "User doesn't exist"));
     }
 
 
-    //TODO verify User, Comment and Post
     @Override
     public ResponseDTO updateReplyToComment(CommentDTO commentDTO, Long comment_id, Long user_id, Long reply_id) {
         Comment reply = modelMapper.map(commentDTO, Comment.class);

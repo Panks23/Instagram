@@ -10,7 +10,7 @@ public interface ICommentService {
 
     ResponseDTO getAllComment(Long user_id, Long post_id);
 
-    ResponseDTO replyToComment(CommentDTO commentDTO, Long comment_id, Long user_id);
+    ResponseDTO replyToComment(CommentDTO commentDTO, Long comment_id, Long user_id, Long post_id);
 
     ResponseDTO updateReplyToComment(CommentDTO commentDTO, Long comment_id, Long user_id, Long reply_id);
 
