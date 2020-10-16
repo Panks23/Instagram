@@ -20,8 +20,8 @@ public class LikeController {
     }
 
     @GetMapping("/{user_id}/post/{post_id}/like")
-    public ResponseDTO getAllLike(@PathVariable("post_id") Long post_id){
-        return likeService.getAllLike(post_id);
+    public ResponseDTO getAllLike(@PathVariable("user_id") Long user_id, @PathVariable("post_id") Long post_id){
+        return likeService.getAllLike(user_id, post_id);
     }
 
     @DeleteMapping("/{user_id}/post/{post_id}/like")

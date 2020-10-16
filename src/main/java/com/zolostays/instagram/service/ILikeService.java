@@ -6,7 +6,7 @@ public interface ILikeService {
 
     ResponseDTO likePost(Long user_id, Long post_id);
 
-    ResponseDTO getAllLike(Long post_id);
+    ResponseDTO getAllLike(Long user_id, Long post_id);
 
     ResponseDTO dislikePost(Long user_id, Long post_id);
 }

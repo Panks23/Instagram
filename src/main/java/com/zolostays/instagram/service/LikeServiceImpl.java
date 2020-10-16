@@ -61,24 +61,26 @@ public class LikeServiceImpl implements ILikeService{
         }
     }
 
-    // TODO We can verify from session if user is authenticated and can check
     @Override
-    public ResponseDTO getAllLike(Long post_id) {
-        return postRepository.findById(post_id).map(post -> {
-            return Mapper.responseDTO(likeRepository.findAllByPostId(post), "You have got all the likes");
-        }).orElse(Mapper.objectDoesNotExist("Post Doesn't Exist"));
-
+    public ResponseDTO getAllLike(Long user_id, Long post_id) {
+        return userRepository.findById(user_id).map(user -> {
+            return postRepository.findById(post_id).map(post -> {
+                return Mapper.responseDTO(likeRepository.findAllByPostId(post), "You have got all the likes");
+            }).orElse(Mapper.objectDoesNotExist("Post Doesn't Exist"));
+        }).orElse(Mapper.responseDTOSingle(null, "User Doesn't exist"));
     }
 
-    //TODO this is not a right way to dislike the post
     @Override
     @Transactional
     public ResponseDTO dislikePost(Long user_id, Long post_id) {
         return postRepository.findById(post_id).map(post -> {
             Optional<User> optionalUser = userRepository.findById(user_id);
             if (optionalUser.isPresent()){
-                likeRepository.deleteByPostIdAndUser(post, optionalUser.get());
-                return Mapper.responseDTOSingle(new ArrayList<>(),"You disliked the post");
+                if(likeRepository.existsByUserAndPostId(optionalUser.get(), post)){
+                    likeRepository.deleteByPostIdAndUser(post, optionalUser.get());
+                    return Mapper.responseDTOSingle(new ArrayList<>(),"You disliked the post");
+                }
+                return Mapper.responseDTOSingle(null, "User is not authenticated");
             }else {
                 return Mapper.responseDTONotFound(new ArrayList<>(), "User doesn't exist");
             }
