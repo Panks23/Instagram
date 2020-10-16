@@ -11,4 +11,7 @@ public interface FollowMapRepository extends JpaRepository<FollowMap, Long> {
     void deleteByFollowedByAndFollowedTo(User followed_by, User followed_to);
     List<FollowMap> findAllByFollowedBy(User user);
     List<FollowMap> findAllByFollowedTo(User user);
+    boolean existsByFollowedByAndFollowedTo(User followed_by, User followed_to);
+    FollowMap findByFollowedByAndFollowedTo(User followed_by, User followed_to);
+
 }
