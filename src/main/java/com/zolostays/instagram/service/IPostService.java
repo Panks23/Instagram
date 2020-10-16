@@ -10,9 +10,9 @@ public interface IPostService {
 
     ResponseDTO getAllPost(Long user_id);
 
-    ResponseDTO deletePost(Long id);
+    ResponseDTO deletePost(Long user_id, Long post_id);
 
-    ResponseDTO createPost(PostDTO postDTO, Long id);
+    ResponseDTO createPost(PostDTO postDTO, Long user_id);
 
     ResponseDTO updatePost(PostDTO postDTO, Long user_id, Long post_id);
 }

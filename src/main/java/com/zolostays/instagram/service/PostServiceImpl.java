@@ -65,10 +65,17 @@ public class PostServiceImpl implements IPostService{
 
     @Override
     @Transactional
-    public ResponseDTO deletePost(Long post_id) {
+    public ResponseDTO deletePost(Long user_id, Long post_id) {
         if(postRepository.existsById(post_id)) {
-            postRepository.deleteById(post_id);
-            return Mapper.objectDeleted("You have deleted object");
+            return userRepository.findById(user_id).map(
+                    user -> {
+                        if(user.equals(postRepository.findById(post_id).get().getUser())){
+                        postRepository.deleteById(post_id);
+                        return Mapper.objectDeleted("You have deleted object");
+                    }
+                        return Mapper.responseDTO(new ArrayList<>(), "User has not permission to delete this post");
+                    }
+            ).orElse(Mapper.responseDTO(new ArrayList<>(), "User doesn't exist"));
         }else{
             return Mapper.objectDoesNotExist("Post doesn't exist by the given post id");
         }

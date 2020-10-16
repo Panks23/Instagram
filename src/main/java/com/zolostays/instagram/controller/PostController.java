@@ -21,8 +21,8 @@ public class PostController {
     }
 
     @DeleteMapping("/{user_id}/post/{post_id}")
-    public ResponseDTO deletePost(@PathVariable("post_id") Long post_id){
-        ResponseDTO responseDTO = postService.deletePost(post_id);
+    public ResponseDTO deletePost(@PathVariable("user_id") Long user_id, @PathVariable("post_id") Long post_id){
+        ResponseDTO responseDTO = postService.deletePost(user_id, post_id);
         return responseDTO;
     }
 
