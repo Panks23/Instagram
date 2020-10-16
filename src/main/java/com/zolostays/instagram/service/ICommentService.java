@@ -8,7 +8,7 @@ public interface ICommentService {
 
     ResponseDTO createComment(CommentDTO commentDTO, Long user_id, Long post_id);
 
-    ResponseDTO getAllComment(Long post_id);
+    ResponseDTO getAllComment(Long user_id, Long post_id);
 
     ResponseDTO replyToComment(CommentDTO commentDTO, Long comment_id, Long user_id);
 

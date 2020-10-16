@@ -24,8 +24,8 @@ public class CommentController {
 
 
     @GetMapping("/{user_id}/post/{post_id}/comment")
-    public ResponseDTO getAllComment(@PathVariable("post_id") Long post_id){
-        return commentService.getAllComment(post_id);
+    public ResponseDTO getAllComment(@PathVariable("user_id") Long user_id, @PathVariable("post_id") Long post_id){
+        return commentService.getAllComment(user_id, post_id);
     }
 
 

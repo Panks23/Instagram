@@ -11,8 +11,8 @@ import com.zolostays.instagram.repository.UserRepository;
 import com.zolostays.instagram.util.Mapper;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
-
 import java.util.List;
+import java.util.Map;
 
 
 @Component
@@ -33,20 +33,25 @@ public class CommentServiceImpl  implements ICommentService{
     }
     @Override
     public ResponseDTO createComment(CommentDTO commentDTO, Long user_id, Long post_id) {
-        User user = userRepository.findById(user_id).get();
-        Post post = postRepository.findById(post_id).get();
-        Comment comment = modelMapper.map(commentDTO, Comment.class);
-        comment.setUser(user);
-        comment.setPost(post);
-        return Mapper.responseDTOSingle(commentRepository.save(comment), "You have commented");
+        return userRepository.findById(user_id).map(user -> {
+            return postRepository.findById(post_id).map(post -> {
+                Comment comment = modelMapper.map(commentDTO, Comment.class);
+                comment.setUser(user);
+                comment.setPost(post);
+                return Mapper.responseDTOSingle(commentRepository.save(comment), "You have commented");
+            }).orElse(Mapper.responseDTOSingle(null, "Post Doesn't exist"));
+        }).orElse(Mapper.responseDTOSingle(null, "User doesn't exist"));
 
     }
 
     @Override
-    public ResponseDTO getAllComment(Long post_id) {
-        Post post = postRepository.findById(post_id).get();
-        List<Comment> comments = commentRepository.findAllByPost(post);
-        return Mapper.responseDTO(comments, "All comments of your post");
+    public ResponseDTO getAllComment(Long user_id, Long post_id) {
+        return userRepository.findById(user_id).map(user -> {
+            return postRepository.findById(post_id).map(post -> {
+                List<Comment> comments = commentRepository.findAllByPost(post);
+                return Mapper.responseDTO(comments, "All comments of your post");
+            }).orElse(Mapper.responseDTOSingle(null, "Post doesn't exist"));
+        }).orElse(Mapper.responseDTOSingle(null, "User doesn't exist"));
     }
 
     @Override
