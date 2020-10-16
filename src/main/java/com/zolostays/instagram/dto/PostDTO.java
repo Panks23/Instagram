@@ -18,7 +18,7 @@ public class PostDTO {
     private String caption;
     private List<ImageDTO> list_image_DTO;
     private UserDTO user_DTO;
-    private Timestamp timestamp;
+    private Timestamp timeStamp;
     private Timestamp edited_at;
 
 }

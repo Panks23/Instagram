@@ -17,7 +17,7 @@ public interface IUserService {
 
     ResponseDTO addUser(UserDTO userDTO);
 
-    ResponseDTO updateUser(UserDTO userDTO);
+    ResponseDTO updateUser(UserDTO userDTO, Long user_id);
 
 
 }

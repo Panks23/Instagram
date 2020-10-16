@@ -14,5 +14,5 @@ public interface IPostService {
 
     ResponseDTO createPost(PostDTO postDTO, Long id);
 
-    ResponseDTO updatePost(PostDTO postDTO, Long id);
+    ResponseDTO updatePost(PostDTO postDTO, Long user_id, Long post_id);
 }

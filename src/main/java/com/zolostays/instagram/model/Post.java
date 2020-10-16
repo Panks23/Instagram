@@ -31,7 +31,7 @@ public class Post {
     private User user;
 
     @JsonManagedReference
-    @OneToMany(mappedBy="post")
+    @OneToMany(mappedBy="post", cascade = CascadeType.REMOVE)
     private List<Image> imageList;
 
 

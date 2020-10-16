@@ -4,11 +4,7 @@ package com.zolostays.instagram.controller;
 import com.zolostays.instagram.dto.ResponseDTO;
 import com.zolostays.instagram.dto.UserDTO;
 import com.zolostays.instagram.service.IUserService;
-import com.zolostays.instagram.service.UserServiceImpl;
-import org.modelmapper.ModelMapper;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/instagram/api/v1/user")
@@ -31,9 +27,9 @@ public class UserController {
         return responseDTO;
     }
 
-    @PutMapping
-    public ResponseDTO updateUser(@RequestBody UserDTO userDTO){
-        ResponseDTO responseDTO = userService.updateUser(userDTO);
+    @PutMapping("/{id}")
+    public ResponseDTO updateUser(@RequestBody UserDTO userDTO, @PathVariable("id") Long user_id){
+        ResponseDTO responseDTO = userService.updateUser(userDTO, user_id);
         return responseDTO;
     }
 

@@ -63,19 +63,32 @@ public class UserServiceImpl implements IUserService {
 
 
         @Override
-        public ResponseDTO updateUser(UserDTO userDTO) {
-        if(userRepository.existsById(userDTO.getId())) {
-            return Mapper.responseDTOSingle(createOrUpdateUser(userDTO), "User updated");
-        }else{
-            return Mapper.responseDTOSingle(createOrUpdateUser(userDTO), "User was not existing before so user got created");
-        }
+        public ResponseDTO updateUser(UserDTO userDTO, Long user_id) {
+        return userRepository.findById(user_id).map(user -> {
+            updateUserWithGivenField(user, userDTO);
+            return Mapper.responseDTOSingle(userRepository.save(user), "User updated");
+        }).orElse(Mapper.responseDTO(new LinkedList<>(), "User Doesn't exist"));
     }
 
-    public UserDTO createOrUpdateUser(UserDTO userDTO){
-        User user = modelMapper.map(userDTO, User.class);
-        System.out.println(user);
-        user = userRepository.save(user);
-        UserDTO resultUserDTO = modelMapper.map(user, UserDTO.class);
-        return resultUserDTO;
+    //TODO need to  add function for updating username
+
+    public User updateUserWithGivenField(User user, UserDTO userDTO){
+        if(userDTO.getFirst_name()!=null){
+            user.setFirst_name(userDTO.getFirst_name());
+        }
+        if(userDTO.getLast_name()!=null){
+            user.setLast_name(userDTO.getLast_name());
+        }
+        if(userDTO.getDob()!=null){
+            user.setDob(userDTO.getDob());
+        }
+        if(userDTO.getGender()!=null){
+            user.setGender(userDTO.getGender());
+        }
+        if(userDTO.getPhoneNo()!=0){
+            user.setPhoneNo(userDTO.getPhoneNo());
+        }
+        return user;
     }
+
 }
