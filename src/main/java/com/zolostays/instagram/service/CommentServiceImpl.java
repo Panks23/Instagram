@@ -3,6 +3,7 @@ package com.zolostays.instagram.service;
 import com.zolostays.instagram.dto.CommentDTO;
 import com.zolostays.instagram.dto.PostDTO;
 import com.zolostays.instagram.dto.ResponseDTO;
+import com.zolostays.instagram.exception.GeneralException;
 import com.zolostays.instagram.model.Comment;
 import com.zolostays.instagram.model.Post;
 import com.zolostays.instagram.model.User;
@@ -14,7 +15,9 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.stereotype.Component;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 
 @Component
@@ -54,10 +57,44 @@ public class CommentServiceImpl  implements ICommentService{
                 List<Comment> comments = commentRepository.findAllByPostAndCommentIdIsNull(post);
                 Type listType = new TypeToken<List<CommentDTO>>(){}.getType();
                 List<CommentDTO> commentDTO = modelMapper.map(comments, listType);
-                return Mapper.responseDTO(commentDTO, "All comments of your post");
+                return Mapper.responseDTO(commentDTO, "All comments of post");
             }).orElse(Mapper.responseDTOSingle(null, "Post doesn't exist"));
         }).orElse(Mapper.responseDTOSingle(null, "User doesn't exist"));
     }
+
+    @Override
+    public ResponseDTO updateComment(CommentDTO commentDTO, Long user_id, Long post_id, Long comment_id) {
+        try{
+            User user = getUser(user_id);
+            Post post = getPost(post_id);
+            Comment originalComment = getComment(comment_id);
+            checkPostAndComment(post, originalComment);
+            checkCommentAndUser(originalComment, user);
+            checkIfItsCommentAndNotReply(originalComment);
+            Comment comment = modelMapper.map(commentDTO, Comment.class);
+            originalComment.setComment(comment.getComment());
+            return Mapper.responseDTOSingle(commentRepository.save(originalComment), "You have updated your comment");
+
+        }catch (GeneralException e){
+            return Mapper.responseDTOSingle(null, e.getMessage());
+        }
+    }
+
+    @Override
+    public ResponseDTO deleteComment(Long user_id, Long post_id, Long comment_id) {
+        try {
+            User user = getUser(user_id);
+            Post post = getPost(post_id);
+            Comment comment = getComment(comment_id);
+            checkPostAndComment(post, comment);
+            checkCommentAndUser(comment, user);
+            commentRepository.deleteById(comment_id);
+            return Mapper.objectDeleted("You deleted your comment");
+        }catch (GeneralException e){
+            return Mapper.responseDTOSingle(null, e.getMessage());
+        }
+    }
+
 
     @Override
     public ResponseDTO replyToComment(CommentDTO commentDTO, Long comment_id, Long user_id, Long post_id) {
@@ -77,44 +114,135 @@ public class CommentServiceImpl  implements ICommentService{
     }
 
 
-    @Override
-    public ResponseDTO updateReplyToComment(CommentDTO commentDTO, Long comment_id, Long user_id, Long reply_id) {
-        Comment reply = modelMapper.map(commentDTO, Comment.class);
-        Comment originalReply = commentRepository.findById(reply_id).get();
-        originalReply.setComment(reply.getComment());
-        originalReply = commentRepository.save(originalReply);
-        return Mapper.responseDTOSingle(originalReply,"You have updated your reply");
+
+    public ResponseDTO updateReplyToComment(CommentDTO commentDTO, Long comment_id,
+                                                     Long user_id, Long reply_id, Long post_id){
+        try{
+            validateForReply(user_id, post_id, comment_id, reply_id);
+            Comment newReply = modelMapper.map(commentDTO, Comment.class);
+            Comment reply = getReply(reply_id);
+            return Mapper.responseDTOSingle(updateReply(reply, newReply), "You have replied");
+        }catch (GeneralException e){
+            return Mapper.responseDTOSingle(null, e.getMessage());
+        }
     }
 
-    //TODO verify User, Comment and Post
-    @Override
-    public ResponseDTO deleteReplyToComment(Long reply_id, Long comment_id, Long user_id) {
-        commentRepository.deleteById(reply_id);
-        return Mapper.objectDeleted("You deleted Reply");
+    public ResponseDTO deleteReplyToComment(Long user_id, Long post_id, Long comment_id, Long reply_id){
+
+        try{
+            validateForReply(user_id, post_id, comment_id, reply_id);
+            commentRepository.deleteById(reply_id);
+            return Mapper.responseDTOSingle(new ArrayList<>(), "Reply Deleted");
+        }catch (GeneralException e){
+            return Mapper.responseDTOSingle(null, e.getMessage());
+        }
+
     }
 
     @Override
-    public ResponseDTO updateComment(CommentDTO commentDTO, Long comment_id) {
-        Comment comment = modelMapper.map(commentDTO, Comment.class);
-        Comment originaComment = commentRepository.findById(comment_id).get();
-        //TODO verify if the same user updating
-        String caption  = comment.getComment();
-        originaComment.setComment(caption);
-        return Mapper.responseDTOSingle(commentRepository.save(originaComment), "You have updated your comment");
+    public ResponseDTO getCommentAndReplies(Long user_id, Long post_id, Long comment_id) {
+        try{
+            User user = getUser(user_id);
+            Post post = getPost(post_id);
+            Comment comment = getComment(comment_id);
+            checkPostAndComment(post, comment);
+            checkIfItsCommentAndNotReply(comment);
+            List<Comment> replies = commentRepository.findAllByCommentId(comment);
+            return Mapper.responseDTO(replies, "You have recieved for all the replies");
+        }catch (GeneralException e){
+            return Mapper.responseDTOSingle(null, e.getMessage());
+        }
+
     }
 
-    @Override
-    public ResponseDTO deleteComment(Long comment_id) {
-        //TODO verify if the same user deleting
-        commentRepository.deleteById(comment_id);
-        return Mapper.objectDeleted("You deleted your comment");
+    public void validateForReply(Long user_id, Long post_id, Long comment_id, Long reply_id) throws GeneralException{
+        User user = getUser(user_id);
+        Post post = getPost(post_id);
+        Comment comment = getComment(comment_id);
+        Comment reply = getReply(reply_id);
+        isReplyToTheSameComment(reply, comment);
+        checkUserAllowedToUpdateReply(reply, user);
+        checkPostAndReply(reply, post);
     }
 
 
-    @Override
-    public ResponseDTO getCommentAndReplies(Long comment_id) {
-        Comment comment = commentRepository.findById(comment_id).get();
-        List<Comment> replies = commentRepository.findAllByCommentId(comment);
-        return Mapper.responseDTO(replies, "You have recieved for all the replies");
+    public User getUser(Long user_id) throws GeneralException {
+        Optional<User> optionalUser = userRepository.findById(user_id);
+     if(optionalUser.isPresent()){
+         return optionalUser.get();
+     }
+     throw new GeneralException("User doesn't Exist");
     }
+
+    public Post getPost(Long post_id) throws GeneralException{
+        Optional<Post> post = postRepository.findById(post_id);
+        if (post.isPresent()){
+            return post.get();
+        }
+        throw new GeneralException("Post is not Present");
+    }
+
+    public Comment getComment(Long comment_id) throws GeneralException{
+        Optional<Comment> optionalComment = commentRepository.findById(comment_id);
+        if (optionalComment.isPresent()){
+            return optionalComment.get();
+        }
+        throw new GeneralException("Comment is not Present");
+    }
+
+    public Comment getReply(Long reply_id) throws GeneralException{
+        Optional<Comment> optionalReply = commentRepository.findById(reply_id);
+        if (optionalReply.isPresent()){
+            if(optionalReply.get().getCommentId()==null){
+                throw new GeneralException("Reply id is not a comment");
+            }
+            return optionalReply.get();
+        }
+        throw new GeneralException("Reply is not Present");
+    }
+
+    public boolean isReplyToTheSameComment(Comment reply, Comment comment) throws GeneralException{
+        if(reply.getCommentId().getId().equals(comment.getId())){
+            return true;
+        }
+        throw new GeneralException("Comment id doesn't not match with the fk of comment of reply");
+    }
+
+    public void checkUserAllowedToUpdateReply(Comment reply, User user)throws GeneralException{
+        if(!reply.getUser().equals(user)){
+            throw new GeneralException("User is not allowed to update Reply");
+        }
+    }
+
+    public void checkPostAndReply(Comment reply, Post post) throws GeneralException{
+        if(!reply.getPost().equals(post)){
+            throw new GeneralException("Reply is not related to the same post");
+        }
+    }
+
+    public Comment updateReply(Comment reply, Comment newReply){
+        reply.setComment(newReply.getComment());
+        return commentRepository.save(reply);
+    }
+
+    public void checkPostAndComment(Post post, Comment comment) throws GeneralException{
+        if(!post.getId().equals(comment.getPost().getId())){
+            throw new GeneralException("Post and comment are not related");
+        }
+    }
+
+    public void checkIfItsCommentAndNotReply(Comment comment) throws GeneralException{
+        if(comment.getComment()!=null){
+            throw new GeneralException("Comment is Reply, Pass valid comment id");
+        }
+    }
+
+    public void checkCommentAndUser(Comment comment, User user) throws GeneralException{
+        if(!comment.getUser().getId().equals(user.getId())){
+            throw new GeneralException("Comment and User are not related");
+        }
+    }
+
+
+
 }

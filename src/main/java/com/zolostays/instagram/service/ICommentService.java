@@ -12,15 +12,16 @@ public interface ICommentService {
 
     ResponseDTO replyToComment(CommentDTO commentDTO, Long comment_id, Long user_id, Long post_id);
 
-    ResponseDTO updateReplyToComment(CommentDTO commentDTO, Long comment_id, Long user_id, Long reply_id);
 
-    ResponseDTO deleteReplyToComment(Long reply_id, Long comment_id, Long user_id);
+    ResponseDTO updateReplyToComment(CommentDTO commentDTO, Long comment_id, Long user_id, Long reply_id, Long post_id);
 
-    ResponseDTO getCommentAndReplies(Long comment_id);
+    ResponseDTO deleteReplyToComment(Long user_id, Long post_id, Long comment_id, Long reply_id);
 
-    ResponseDTO updateComment(CommentDTO commentDTO, Long comment_id);
+    ResponseDTO getCommentAndReplies(Long user_id, Long post_id, Long comment_id);
 
-    ResponseDTO deleteComment(Long comment_id);
+    ResponseDTO updateComment(CommentDTO commentDTO, Long user_id, Long post_id, Long comment_id);
+
+    ResponseDTO deleteComment(Long user_id,  Long post_id, Long comment_id);
 
 
 }
