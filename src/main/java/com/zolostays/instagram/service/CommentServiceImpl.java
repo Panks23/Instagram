@@ -1,7 +1,6 @@
 package com.zolostays.instagram.service;
 
 import com.zolostays.instagram.dto.CommentDTO;
-import com.zolostays.instagram.dto.PostDTO;
 import com.zolostays.instagram.dto.ResponseDTO;
 import com.zolostays.instagram.exception.GeneralException;
 import com.zolostays.instagram.model.Comment;
@@ -103,10 +102,15 @@ public class CommentServiceImpl  implements ICommentService{
             reply.setUser(user);
             return postRepository.findById(post_id).map(post -> {
                 return commentRepository.findById(comment_id).map(comment -> {
-                    reply.setCommentId(comment);
-                    reply.setPost(comment.getPost());
-                    Comment resultReply  = commentRepository.save(reply);
-                    return Mapper.responseDTOSingle(resultReply, "You have replied");
+                    try {
+                        checkIfItsCommentAndNotReply(comment);
+                        reply.setCommentId(comment);
+                        reply.setPost(comment.getPost());
+                        Comment resultReply  = commentRepository.save(reply);
+                        return Mapper.responseDTOSingle(resultReply, "You have replied");
+                    } catch (GeneralException e) {
+                        return Mapper.responseDTOSingle(null, e.getMessage());
+                    }
                 }).orElse(Mapper.responseDTOSingle(null, "Comment Doesn't exist"));
             }).orElse(Mapper.responseDTOSingle(null, "Post doesn't exist"));
 
