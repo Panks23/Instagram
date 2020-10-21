@@ -11,17 +11,17 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-@RunWith(SpringRunner.class)
-@DataJpaTest
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-public class PostRepositoryUnitTest {
-
-    @Autowired
-    PostRepository postRepository;
-
-    @Test
-    public void findAllByUserTest(){
-        Post post = postRepository.findById(19L).get();
-        Assert.assertEquals("There should be atleast one post with a user", true, postRepository.findAllByUser(post.getUser()).size()>=1);
-    }
-}
+//@RunWith(SpringRunner.class)
+//@DataJpaTest
+//@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+//public class PostRepositoryUnitTest {
+//
+//    @Autowired
+//    PostRepository postRepository;
+//
+//    @Test
+//    public void findAllByUserTest(){
+//        Post post = postRepository.findById(19L).get();
+//        Assert.assertEquals("There should be atleast one post with a user", true, postRepository.findAllByUser(post.getUser()).size()>=1);
+//    }
+//}

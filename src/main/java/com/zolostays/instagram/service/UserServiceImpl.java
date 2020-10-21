@@ -1,13 +1,10 @@
 package com.zolostays.instagram.service;
 
-import com.zolostays.instagram.dto.ResponseDTO;
 import com.zolostays.instagram.dto.UserDTO;
 import com.zolostays.instagram.model.User;
 import com.zolostays.instagram.repository.UserRepository;
-import com.zolostays.instagram.util.Mapper;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
-import java.util.LinkedList;
 import java.util.Optional;
 
 
@@ -22,14 +19,14 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public  ResponseDTO getUser(Long id) {
+    public  Optional<UserDTO> getUser(Long id) {
         Optional<User> optionalUser = getUserById(id);
         if(optionalUser.isPresent()){
             User user = optionalUser.get();
             UserDTO userDTO = modelMapper.map(user, UserDTO.class);
-            return Mapper.responseDTOSingle(userDTO, "You have got user");
+            return Optional.of(userDTO);
         }else{
-            return Mapper.responseDTONotFound(new LinkedList<>(),"User doesn't exist with the given user id");
+            return Optional.empty();
         }
     }
 
@@ -39,40 +36,39 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public ResponseDTO deleteUser(Long id) {
+    public boolean deleteUser(Long id) {
         if(userRepository.existsById(id)){
             userRepository.deleteById(id);
-            return Mapper.objectDeleted("You have deleted User");
+            return true;
         }else{
-            return Mapper.responseDTONotFound(new LinkedList<>(), "User can't be deleted because it doesn't exist");
+            return false;
         }
 
     }
 
     @Override
-    public ResponseDTO addUser(UserDTO userDTO) {
+    public Optional<UserDTO> addUser(UserDTO userDTO) {
         User user = modelMapper.map(userDTO, User.class);
         if(!userRepository.existsByUsername(user.getUsername())) {
             user = userRepository.save(user);
             UserDTO resultUserDTO = modelMapper.map(user, UserDTO.class);
-            return Mapper.responseDTOSingle(resultUserDTO, "User created");
+            return Optional.of(resultUserDTO);
         }else{
-            return Mapper.objectNotCreated("Username Already Exist");
+            return Optional.empty();
         }
     }
 
 
         @Override
-        public ResponseDTO updateUser(UserDTO userDTO, Long user_id) {
+        public Optional<UserDTO> updateUser(UserDTO userDTO, Long user_id) {
         return userRepository.findById(user_id).map(user -> {
-            updateUserWithGivenField(user, userDTO);
-            return Mapper.responseDTOSingle(userRepository.save(user), "User updated");
-        }).orElse(Mapper.responseDTO(new LinkedList<>(), "User Doesn't exist"));
+            setValueOfUserWithGivenField(user, userDTO);
+            return Optional.of(modelMapper.map(userRepository.save(user), UserDTO.class));
+        }).orElse(Optional.empty());
     }
 
-    //TODO need to  add function for updating username
 
-    public User updateUserWithGivenField(User user, UserDTO userDTO){
+    public User setValueOfUserWithGivenField(User user, UserDTO userDTO){
         if(userDTO.getFirst_name()!=null){
             user.setFirst_name(userDTO.getFirst_name());
         }

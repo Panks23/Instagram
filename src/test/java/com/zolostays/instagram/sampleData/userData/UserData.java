@@ -9,11 +9,15 @@ public class UserData {
         return new UserDTO().setFirst_name("Pankaj")
                 .setLast_name("Singh")
                 .setGender(Gender.Male)
-                .setUsername("hello");
+                .setUsername("hello")
+                .setId(1L);
     }
 
     public static UserDTO getNewUpdateUserDTO(){
-        return new UserDTO().setId(101L)
-                .setFirst_name("Panky");
+        return new UserDTO().setFirst_name("Panky")
+                .setLast_name("Singh")
+                .setGender(Gender.Male)
+                .setUsername("hello")
+                .setId(1L);
     }
 }
