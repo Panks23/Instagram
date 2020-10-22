@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import static net.logstash.logback.argument.StructuredArguments.*;
-import java.util.LinkedList;
 import java.util.Optional;
 
 @RestController
@@ -25,10 +24,12 @@ public class UserController {
 
     @PostMapping
     public ResponseDTO<UserDTO> addUser(@RequestBody UserDTO userDTO){
+        logger.info("Got a request to Create User");
         Optional<UserDTO> userDTOOptional = userService.addUser(userDTO);
         if(userDTOOptional.isPresent()){
             return Mapper.responseDTOSingle(userDTOOptional, "User Created" );
         }
+        logger.error("Username already Taken");
         return Mapper.responseDTOSingle(null, "Username Already Taken");
     }
 
@@ -37,26 +38,28 @@ public class UserController {
         logger.info("User Requested for getting user with id: {}" ,id);
         Optional<UserDTO> userDTOOptional  = userService.getUser(id);
         if(userDTOOptional.isPresent()){
-            logger.info("User Recieved", kv("user", userDTOOptional.get()));
             return Mapper.responseDTOSingle(userDTOOptional, "You have got User" );
         }
-        logger.error("User doesn't exist with {}", kv("userId", id));
         return Mapper.responseDTOSingle(null, "User Doesn't exist of given ID");
     }
 
     @PutMapping("/{id}")
     public ResponseDTO updateUser(@RequestBody UserDTO userDTO, @PathVariable("id") Long user_id){
+        logger.info("User Requested for updating with {}", kv("userID", user_id));
         Optional<UserDTO> userDTOOptional  = userService.updateUser(userDTO, user_id);
         if(userDTOOptional.isPresent()){
+            logger.info("User Updated with {}", kv("userId", user_id));
             return Mapper.responseDTOSingle(userDTOOptional, "User updated" );
         }
-        return Mapper.responseDTOSingle(null, "User didn't get updated");
+        logger.error("Failed to update User with {}", kv("userID", user_id));
+        return Mapper.responseDTOSingle(null, "Failed to update User");
     }
 
     @DeleteMapping("/{id}")
-    public ResponseDTO deleteUser(@PathVariable("id") Long id){
+    public ResponseDTO deleteUser(@PathVariable("id") Long user_id){
+        logger.info("Requested for deleting usere with {}", kv("userID", user_id));
         try{
-            userService.deleteUser(id);
+            userService.deleteUser(user_id);
             return Mapper.objectDeleted("User deleted");
         }catch (UserDoesNotExistException e) {
             return Mapper.responseDTOSingle(null, e.getMessage());
