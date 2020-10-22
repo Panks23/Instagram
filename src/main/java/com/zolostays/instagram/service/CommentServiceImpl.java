@@ -2,7 +2,7 @@ package com.zolostays.instagram.service;
 
 import com.zolostays.instagram.dto.CommentDTO;
 import com.zolostays.instagram.dto.ResponseDTO;
-import com.zolostays.instagram.exception.GeneralException;
+import com.zolostays.instagram.exception.BaseException;
 import com.zolostays.instagram.model.Comment;
 import com.zolostays.instagram.model.Post;
 import com.zolostays.instagram.model.User;
@@ -74,7 +74,7 @@ public class CommentServiceImpl  implements ICommentService{
             originalComment.setComment(comment.getComment());
             return Mapper.responseDTOSingle(commentRepository.save(originalComment), "You have updated your comment");
 
-        }catch (GeneralException e){
+        }catch (BaseException e){
             return Mapper.responseDTOSingle(null, e.getMessage());
         }
     }
@@ -89,7 +89,7 @@ public class CommentServiceImpl  implements ICommentService{
             checkCommentAndUser(comment, user);
             commentRepository.deleteById(comment_id);
             return Mapper.objectDeleted("You deleted your comment");
-        }catch (GeneralException e){
+        }catch (BaseException e){
             return Mapper.responseDTOSingle(null, e.getMessage());
         }
     }
@@ -108,7 +108,7 @@ public class CommentServiceImpl  implements ICommentService{
                         reply.setPost(comment.getPost());
                         Comment resultReply  = commentRepository.save(reply);
                         return Mapper.responseDTOSingle(resultReply, "You have replied");
-                    } catch (GeneralException e) {
+                    } catch (BaseException e) {
                         return Mapper.responseDTOSingle(null, e.getMessage());
                     }
                 }).orElse(Mapper.responseDTOSingle(null, "Comment Doesn't exist"));
@@ -126,7 +126,7 @@ public class CommentServiceImpl  implements ICommentService{
             Comment newReply = modelMapper.map(commentDTO, Comment.class);
             Comment reply = getReply(reply_id);
             return Mapper.responseDTOSingle(updateReply(reply, newReply), "You have replied");
-        }catch (GeneralException e){
+        }catch (BaseException e){
             return Mapper.responseDTOSingle(null, e.getMessage());
         }
     }
@@ -137,7 +137,7 @@ public class CommentServiceImpl  implements ICommentService{
             validateForReply(user_id, post_id, comment_id, reply_id);
             commentRepository.deleteById(reply_id);
             return Mapper.responseDTOSingle(new ArrayList<>(), "Reply Deleted");
-        }catch (GeneralException e){
+        }catch (BaseException e){
             return Mapper.responseDTOSingle(null, e.getMessage());
         }
 
@@ -153,13 +153,13 @@ public class CommentServiceImpl  implements ICommentService{
             checkIfItsCommentAndNotReply(comment);
             List<Comment> replies = commentRepository.findAllByCommentId(comment);
             return Mapper.responseDTO(replies, "You have recieved for all the replies");
-        }catch (GeneralException e){
+        }catch (BaseException e){
             return Mapper.responseDTOSingle(null, e.getMessage());
         }
 
     }
 
-    public void validateForReply(Long user_id, Long post_id, Long comment_id, Long reply_id) throws GeneralException{
+    public void validateForReply(Long user_id, Long post_id, Long comment_id, Long reply_id) throws BaseException{
         User user = getUser(user_id);
         Post post = getPost(post_id);
         Comment comment = getComment(comment_id);
@@ -170,57 +170,57 @@ public class CommentServiceImpl  implements ICommentService{
     }
 
 
-    public User getUser(Long user_id) throws GeneralException {
+    public User getUser(Long user_id) throws BaseException {
         Optional<User> optionalUser = userRepository.findById(user_id);
      if(optionalUser.isPresent()){
          return optionalUser.get();
      }
-     throw new GeneralException("User doesn't Exist");
+     throw new BaseException("User doesn't Exist");
     }
 
-    public Post getPost(Long post_id) throws GeneralException{
+    public Post getPost(Long post_id) throws BaseException{
         Optional<Post> post = postRepository.findById(post_id);
         if (post.isPresent()){
             return post.get();
         }
-        throw new GeneralException("Post is not Present");
+        throw new BaseException("Post is not Present");
     }
 
-    public Comment getComment(Long comment_id) throws GeneralException{
+    public Comment getComment(Long comment_id) throws BaseException{
         Optional<Comment> optionalComment = commentRepository.findById(comment_id);
         if (optionalComment.isPresent()){
             return optionalComment.get();
         }
-        throw new GeneralException("Comment is not Present");
+        throw new BaseException("Comment is not Present");
     }
 
-    public Comment getReply(Long reply_id) throws GeneralException{
+    public Comment getReply(Long reply_id) throws BaseException{
         Optional<Comment> optionalReply = commentRepository.findById(reply_id);
         if (optionalReply.isPresent()){
             if(optionalReply.get().getCommentId()==null){
-                throw new GeneralException("Reply id is not a comment");
+                throw new BaseException("Reply id is not a comment");
             }
             return optionalReply.get();
         }
-        throw new GeneralException("Reply is not Present");
+        throw new BaseException("Reply is not Present");
     }
 
-    public boolean isReplyToTheSameComment(Comment reply, Comment comment) throws GeneralException{
+    public boolean isReplyToTheSameComment(Comment reply, Comment comment) throws BaseException{
         if(reply.getCommentId().getId().equals(comment.getId())){
             return true;
         }
-        throw new GeneralException("Comment id doesn't not match with the fk of comment of reply");
+        throw new BaseException("Comment id doesn't not match with the fk of comment of reply");
     }
 
-    public void checkUserAllowedToUpdateReply(Comment reply, User user)throws GeneralException{
+    public void checkUserAllowedToUpdateReply(Comment reply, User user)throws BaseException{
         if(!reply.getUser().equals(user)){
-            throw new GeneralException("User is not allowed to update Reply");
+            throw new BaseException("User is not allowed to update Reply");
         }
     }
 
-    public void checkPostAndReply(Comment reply, Post post) throws GeneralException{
+    public void checkPostAndReply(Comment reply, Post post) throws BaseException{
         if(!reply.getPost().equals(post)){
-            throw new GeneralException("Reply is not related to the same post");
+            throw new BaseException("Reply is not related to the same post");
         }
     }
 
@@ -229,21 +229,21 @@ public class CommentServiceImpl  implements ICommentService{
         return commentRepository.save(reply);
     }
 
-    public void checkPostAndComment(Post post, Comment comment) throws GeneralException{
+    public void checkPostAndComment(Post post, Comment comment) throws BaseException{
         if(!post.getId().equals(comment.getPost().getId())){
-            throw new GeneralException("Post and comment are not related");
+            throw new BaseException("Post and comment are not related");
         }
     }
 
-    public void checkIfItsCommentAndNotReply(Comment comment) throws GeneralException{
+    public void checkIfItsCommentAndNotReply(Comment comment) throws BaseException{
         if(comment.getComment()!=null){
-            throw new GeneralException("Comment is Reply, Pass valid comment id");
+            throw new BaseException("Comment is Reply, Pass valid comment id");
         }
     }
 
-    public void checkCommentAndUser(Comment comment, User user) throws GeneralException{
+    public void checkCommentAndUser(Comment comment, User user) throws BaseException{
         if(!comment.getUser().getId().equals(user.getId())){
-            throw new GeneralException("Comment and User are not related");
+            throw new BaseException("Comment and User are not related");
         }
     }
 

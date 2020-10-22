@@ -38,28 +38,27 @@ public class PostServiceImpl implements IPostService{
     }
 
 
-    //TODO check if user has permission
     @Override
-    public ResponseDTO<Optional<PostDTO>> getPost(Long post_id) {
+    public Optional<PostDTO> getPost(Long user_id, Long post_id) {
         Optional<Post> optionalPost = postRepository.findById(post_id);
         if(optionalPost.isPresent()){
             Post post = optionalPost.get();
             PostDTO postDTO = modelMapper.map(post, PostDTO.class);
-            return Mapper.responseDTOSingle(postDTO, "You have got the response for the given post id");
+            return Optional.of(postDTO);
         }
-        return Mapper.objectDoesNotExist("Post doesn't exist for the given ID");
+        return Optional.empty();
     }
 
     @Override
-    public ResponseDTO getAllPost(Long user_id) {
+    public List<PostDTO> getAllPost(Long user_id) {
         if(userRepository.existsById(user_id)) {
             User user = userRepository.findById(user_id).get();
             List<Post> listOfPost = postRepository.findAllByUser(user);
             Type listType = new TypeToken<List<PostDTO>>(){}.getType();
             List<PostDTO> postDTOList = modelMapper.map(listOfPost, listType);
-            return Mapper.responseDTO(postDTOList, "You have recieved post for the given user id");
+            return postDTOList;
         }else{
-            return Mapper.objectDoesNotExist("User doesn't exist");
+            return new ArrayList<>();
         }
     }
 

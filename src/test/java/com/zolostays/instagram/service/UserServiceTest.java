@@ -70,9 +70,6 @@ public class UserServiceTest {
 
     @Test
     public void getUserFromIdFailed(){
-        UserDTO userDTO = UserData.getNewUserDTO();
-        User user = modelMapper.map(userDTO, User.class);
-
         doReturn(Optional.empty()).when(usersRepository).findById(1L);
 
         Optional<UserDTO> userDTOOptional = userService.getUser(1l);
