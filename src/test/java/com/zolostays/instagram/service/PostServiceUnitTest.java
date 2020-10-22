@@ -4,6 +4,7 @@ package com.zolostays.instagram.service;
 import com.zolostays.instagram.dto.ImageDTO;
 import com.zolostays.instagram.dto.PostDTO;
 import com.zolostays.instagram.dto.UserDTO;
+import com.zolostays.instagram.exception.BaseException;
 import com.zolostays.instagram.exception.UserDoesNotExistException;
 import com.zolostays.instagram.model.Image;
 import com.zolostays.instagram.model.Post;
@@ -48,8 +49,8 @@ public class PostServiceUnitTest {
 
     @Before
     public void setUp(){
-        modelMapper.typeMap(Post.class, PostDTO.class).addMapping(Post::getUser, PostDTO::setUser_DTO)
-                .addMapping(Post::getImageList, PostDTO::setList_image_DTO);
+        modelMapper.typeMap(PostDTO.class, Post.class).addMapping(PostDTO::getUser_DTO, Post::setUser)
+                .addMapping(PostDTO::getList_image_DTO, Post::setImageList);
     }
 
     @Test
@@ -87,6 +88,42 @@ public class PostServiceUnitTest {
             assertFalse(false);
         }catch (UserDoesNotExistException e){
             assertTrue(true);
+        }
+    }
+
+
+    @Test
+    public void getPostSuccess(){
+        PostDTO postDTO = PostData.getNewPostDTO();
+        UserDTO userDTO  = postDTO.getUser_DTO();
+
+        User user = modelMapper.map(userDTO, User.class);
+        Post post = modelMapper.map(postDTO, Post.class);
+        doReturn(Optional.of(user)).when(userRepository).findById(userDTO.getId());
+        doReturn(Optional.of(post)).when(postRepository).findByIdAndUser(postDTO.getId(), user);
+
+        try {
+            Optional<PostDTO> resultPostDTOOptional = postService.getPost(userDTO.getId(), postDTO.getId());
+            assertEquals(Optional.of(postDTO), resultPostDTOOptional);
+        }catch (BaseException e){
+            assertFalse(false);
+        }
+
+    }
+
+    @Test
+    public void getPosShouldThrowUserDoesNotExistException(){
+        PostDTO postDTO = PostData.getNewPostDTO();
+        UserDTO userDTO  = postDTO.getUser_DTO();
+
+        User user = modelMapper.map(userDTO, User.class);
+        Post post = modelMapper.map(postDTO, Post.class);
+        doReturn(Optional.empty()).when(userRepository).findById(userDTO.getId());
+        try {
+            Optional<PostDTO> resultPostDTOOptional = postService.getPost(userDTO.getId(), postDTO.getId());
+            assertEquals(Optional.of(postDTO), resultPostDTOOptional);
+        }catch (BaseException e){
+           assertTrue(e.getMessage().contains("User doesn't exist of given id"));
         }
     }
 

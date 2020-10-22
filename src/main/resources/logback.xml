@@ -4,13 +4,6 @@
             <provider class="net.logstash.logback.composite.loggingevent.ArgumentsJsonProvider"/>
             <jsonGeneratorDecorator class="net.logstash.logback.decorate.PrettyPrintingJsonGeneratorDecorator"/>
         </encoder>
-<!--        <layout class="ch.qos.logback.contrib.json.classic.JsonLayout">-->
-<!--                            <timestampFormat>yyyy-MM-dd'T'HH:mm:ss.SSSX</timestampFormat>-->
-<!--                            <timestampFormatTimezoneId>Etc/UTC</timestampFormatTimezoneId>-->
-<!--                            <jsonFormatter class="ch.qos.logback.contrib.jackson.JacksonJsonFormatter">-->
-<!--                                <prettyPrint>true</prettyPrint>-->
-<!--                            </jsonFormatter>-->
-<!--        </layout>-->
     </appender>
     <appender name="jsonFileAppender" class="ch.qos.logback.core.FileAppender">
         <file>log/insta.log</file>
@@ -18,51 +11,9 @@
             <provider class="net.logstash.logback.composite.loggingevent.ArgumentsJsonProvider"/>
             <jsonGeneratorDecorator class="net.logstash.logback.decorate.PrettyPrintingJsonGeneratorDecorator"/>
         </encoder>
-<!--            <layout class="ch.qos.logback.contrib.json.classic.JsonLayout">-->
-<!--                        <timestampFormat>yyyy-MM-dd'T'HH:mm:ss.SSSX</timestampFormat>-->
-<!--                        <timestampFormatTimezoneId>Etc/UTC</timestampFormatTimezoneId>-->
-<!--                        <jsonFormatter class="ch.qos.logback.contrib.jackson.JacksonJsonFormatter">-->
-<!--                            <prettyPrint>true</prettyPrint>-->
-<!--                        </jsonFormatter>-->
-<!--            </layout>-->
     </appender>
     <root level="INFO">
         <appender-ref ref="jsonConsoleAppender"/>
         <appender-ref ref="jsonFileAppender"/>
-
     </root>
 </configuration>
-
-
-<!--<configuration>-->
-
-<!--    <appender name="jsonConsole" class="ch.qos.logback.core.ConsoleAppender">-->
-<!--x        <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">-->
-<!--                <layout class="ch.qos.logback.contrib.json.classic.JsonLayout">-->
-<!--                    <timestampFormat>yyyy-MM-dd'T'HH:mm:ss.SSSX</timestampFormat>-->
-<!--                    <timestampFormatTimezoneId>Etc/UTC</timestampFormatTimezoneId>-->
-<!--                    <jsonFormatter class="ch.qos.logback.contrib.jackson.JacksonJsonFormatter">-->
-<!--                        <prettyPrint>true</prettyPrint>-->
-<!--                    </jsonFormatter>-->
-<!--                </layout>-->
-<!--            </encoder>-->
-<!--        </appender>-->
-
-<!--    <appender name="jsonFile" class="ch.qos.logback.core.FileAppender">-->
-<!--        <file>log/insta.log</file>-->
-<!--        <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">-->
-<!--            <layout class="ch.qos.logback.contrib.json.classic.JsonLayout">-->
-<!--                <timestampFormat>yyyy-MM-dd'T'HH:mm:ss.SSSX</timestampFormat>-->
-<!--                <timestampFormatTimezoneId>Etc/UTC</timestampFormatTimezoneId>-->
-<!--                <jsonFormatter class="ch.qos.logback.contrib.jackson.JacksonJsonFormatter">-->
-<!--                    <prettyPrint>true</prettyPrint>-->
-<!--                </jsonFormatter>-->
-<!--            </layout>-->
-<!--    </encoder>-->
-<!--    </appender>-->
-
-<!--    <root level="debug">-->
-<!--        <appender-ref ref="jsonFile" />-->
-<!--        <appender-ref ref="jsonConsole" />-->
-<!--    </root>-->
-<!--</configuration>-->

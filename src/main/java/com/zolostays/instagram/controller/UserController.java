@@ -62,6 +62,7 @@ public class UserController {
             userService.deleteUser(user_id);
             return Mapper.objectDeleted("User deleted");
         }catch (UserDoesNotExistException e) {
+            logger.error("Anything ", e);
             return Mapper.responseDTOSingle(null, e.getMessage());
         }
     }
