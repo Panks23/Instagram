@@ -37,7 +37,6 @@ public class LikeServiceImpl implements ILikeService{
         ).addMapping(Like::getUser, LikeDTO::setUserDTO);
     }
 
-    //Todo Ask is it okay to delete row in a table in post method
     @Transactional
     @Override
     public ResponseDTO likePost(Long user_id, Long post_id) {

@@ -3,6 +3,7 @@ package com.zolostays.instagram.service;
 
 import com.zolostays.instagram.dto.ResponseDTO;
 import com.zolostays.instagram.dto.UserDTO;
+import com.zolostays.instagram.exception.UserDoesNotExistException;
 import com.zolostays.instagram.model.User;
 
 import java.util.Optional;
@@ -13,7 +14,7 @@ public interface IUserService {
 
     Optional<User> getUserById(Long id);
 
-    boolean deleteUser(Long id);
+    void deleteUser(Long id) throws UserDoesNotExistException;
 
     Optional<UserDTO> addUser(UserDTO userDTO);
 

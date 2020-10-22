@@ -3,6 +3,9 @@ package com.zolostays.instagram.service;
 import com.zolostays.instagram.dto.ImageDTO;
 import com.zolostays.instagram.dto.PostDTO;
 import com.zolostays.instagram.dto.ResponseDTO;
+import com.zolostays.instagram.exception.BaseException;
+import com.zolostays.instagram.exception.PostDoesNotExistException;
+import com.zolostays.instagram.exception.UserDoesNotExistException;
 import com.zolostays.instagram.model.Image;
 import com.zolostays.instagram.model.Post;
 import com.zolostays.instagram.model.User;
@@ -12,7 +15,10 @@ import com.zolostays.instagram.repository.UserRepository;
 import com.zolostays.instagram.util.Mapper;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import javax.management.BadAttributeValueExpException;
 import javax.transaction.Transactional;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -23,34 +29,40 @@ import java.util.stream.Collectors;
 @Component
 public class PostServiceImpl implements IPostService{
 
+    @Autowired
     private PostRepository postRepository;
+
+    @Autowired
     private ImageRepository imageRepository;
+
+    @Autowired
     private UserRepository userRepository;
     ModelMapper modelMapper = new ModelMapper();
 
-    public PostServiceImpl(PostRepository postRepository, ImageRepository imageRepository
-                            , UserRepository userRepository){
-        this.postRepository = postRepository;
-        this.imageRepository = imageRepository;
-        this.userRepository = userRepository;
+    public PostServiceImpl(){
         modelMapper.typeMap(Post.class, PostDTO.class).addMapping(Post::getUser, PostDTO::setUser_DTO)
                 .addMapping(Post::getImageList, PostDTO::setList_image_DTO);
     }
 
 
     @Override
-    public Optional<PostDTO> getPost(Long user_id, Long post_id) {
-        Optional<Post> optionalPost = postRepository.findById(post_id);
+    public Optional<PostDTO> getPost(Long user_id, Long post_id) throws BaseException {
+        Optional<User> userOptional = userRepository.findById(user_id);
+        if(!userOptional.isPresent()){
+            throw new UserDoesNotExistException(user_id.toString());
+        }
+        Optional<Post> optionalPost = postRepository.findByIdAndUser(post_id, userOptional.get());
         if(optionalPost.isPresent()){
             Post post = optionalPost.get();
             PostDTO postDTO = modelMapper.map(post, PostDTO.class);
             return Optional.of(postDTO);
+        }else{
+            throw new PostDoesNotExistException(post_id.toString());
         }
-        return Optional.empty();
     }
 
     @Override
-    public List<PostDTO> getAllPost(Long user_id) {
+    public List<PostDTO> getAllPost(Long user_id) throws UserDoesNotExistException {
         if(userRepository.existsById(user_id)) {
             User user = userRepository.findById(user_id).get();
             List<Post> listOfPost = postRepository.findAllByUser(user);
@@ -58,32 +70,27 @@ public class PostServiceImpl implements IPostService{
             List<PostDTO> postDTOList = modelMapper.map(listOfPost, listType);
             return postDTOList;
         }else{
-            return new ArrayList<>();
+            throw new UserDoesNotExistException(user_id.toString());
         }
     }
 
+
     @Override
     @Transactional
-    public ResponseDTO deletePost(Long user_id, Long post_id) {
-        if(postRepository.existsById(post_id)) {
-            return userRepository.findById(user_id).map(
-                    user -> {
-                        if(user.equals(postRepository.findById(post_id).get().getUser())){
-                        postRepository.deleteById(post_id);
-                        return Mapper.objectDeleted("You have deleted object");
-                    }
-                        return Mapper.responseDTO(new ArrayList<>(), "User has not permission to delete this post");
-                    }
-            ).orElse(Mapper.responseDTO(new ArrayList<>(), "User doesn't exist"));
-        }else{
-            return Mapper.objectDoesNotExist("Post doesn't exist by the given post id");
+    public void deletePost(Long user_id, Long post_id) throws BaseException{
+
+        if(!userRepository.existsById(user_id)){
+            throw new UserDoesNotExistException(user_id.toString());
         }
+        User user = userRepository.findById(user_id).get();
+        if(!postRepository.existsByIdAndUser(post_id, user)){
+            throw new PostDoesNotExistException(post_id.toString());
+        }
+        postRepository.deleteByIdAndUser(post_id, user);
     }
 
-    //TODO why timestamp is null
     @Override
-    @Transactional
-    public ResponseDTO createPost(PostDTO postDTO, Long user_id) {
+    public PostDTO createPost(PostDTO postDTO, Long user_id) throws UserDoesNotExistException {
         List<ImageDTO> listImageDTO = postDTO.getList_image_DTO();
         Post post = modelMapper.map(postDTO, Post.class);
         Optional<User> userOptional = userRepository.findById(user_id);
@@ -93,9 +100,11 @@ public class PostServiceImpl implements IPostService{
             List<ImageDTO> imageDTOList = saveImageForPost(post, listImageDTO);
             PostDTO resultPostDTO = modelMapper.map(post, PostDTO.class);
             resultPostDTO.setList_image_DTO(imageDTOList);
-            return Mapper.responseDTOSingle(resultPostDTO, "Your Post has been created");
+            return resultPostDTO;
         }
-        return Mapper.objectDoesNotExist("User doesn't exist to create post for the given user id");
+        else{
+            throw new UserDoesNotExistException(user_id.toString());
+        }
     }
 
     public Post savePost(Post post){
@@ -119,26 +128,21 @@ public class PostServiceImpl implements IPostService{
     }
 
     @Override
-    public ResponseDTO updatePost(PostDTO postDTO, Long user_id, Long post_id) {
-        return postRepository.findById(post_id).map(post -> {
-                Optional<User> optionalUser = userRepository.findById(user_id);
-                if(optionalUser.isPresent()){
-                    return updatePostWithGivenField(optionalUser.get(), post, postDTO);
-                }else {
-                    return  Mapper.responseDTO(new ArrayList<>(), "User doesn't exist to update that post");
-                }
-        }).orElse(Mapper.responseDTONotFound(new ArrayList<>(), "No such post exist to be updated"));
+    public PostDTO updatePost(Long user_id, Long post_id, PostDTO postDTO) throws BaseException{
+        if(!userRepository.existsById(user_id)){
+            throw new UserDoesNotExistException(user_id.toString());
+        }
+        User user = userRepository.findById(user_id).get();
+        if(!postRepository.existsByIdAndUser(post_id, user)){
+            throw new PostDoesNotExistException(post_id.toString());
+        }
+        Post originalPost = postRepository.findByIdAndUser(post_id, user).get();
+        Post post  = updatePostWithGivenField(user, originalPost, postDTO);
+        return modelMapper.map(post, PostDTO.class);
     }
 
-    //Update of image is not allowed here as Instagram also doesn't allow
-    public ResponseDTO updatePostWithGivenField(User user, Post post, PostDTO postDTO){
-        if(user.equals(post.getUser())){
-            if(postDTO.getCaption()!=null){
-                post.setCaption(postDTO.getCaption());
-            }
-           return  Mapper.responseDTOSingle(postRepository.save(post), "Your post has been updated");
-        }else{
-             return Mapper.responseDTO(new ArrayList<>(), "Post created by user doesn't match with the user who want to update post");
-        }
+    public Post updatePostWithGivenField(User user, Post originalPost, PostDTO postDTO){
+       originalPost.setCaption(postDTO.getCaption());
+       return postRepository.save(originalPost);
     }
 }

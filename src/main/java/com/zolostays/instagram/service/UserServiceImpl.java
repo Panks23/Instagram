@@ -1,9 +1,11 @@
 package com.zolostays.instagram.service;
 
 import com.zolostays.instagram.dto.UserDTO;
+import com.zolostays.instagram.exception.UserDoesNotExistException;
 import com.zolostays.instagram.model.User;
 import com.zolostays.instagram.repository.UserRepository;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import java.util.Optional;
 
@@ -11,12 +13,11 @@ import java.util.Optional;
 @Component
 public class UserServiceImpl implements IUserService {
 
+    @Autowired
     private UserRepository userRepository;
+
     ModelMapper modelMapper = new ModelMapper();
 
-    public UserServiceImpl(UserRepository userRepository){
-        this.userRepository = userRepository;
-    }
 
     @Override
     public  Optional<UserDTO> getUser(Long id) {
@@ -36,12 +37,11 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public boolean deleteUser(Long id) {
+    public void deleteUser(Long id) throws UserDoesNotExistException{
         if(userRepository.existsById(id)){
             userRepository.deleteById(id);
-            return true;
         }else{
-            return false;
+            throw new UserDoesNotExistException(id.toString());
         }
 
     }

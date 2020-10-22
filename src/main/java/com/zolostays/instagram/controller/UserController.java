@@ -3,12 +3,14 @@ package com.zolostays.instagram.controller;
 
 import com.zolostays.instagram.dto.ResponseDTO;
 import com.zolostays.instagram.dto.UserDTO;
+import com.zolostays.instagram.exception.UserDoesNotExistException;
 import com.zolostays.instagram.service.IUserService;
 import com.zolostays.instagram.util.Mapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
+import static net.logstash.logback.argument.StructuredArguments.*;
 import java.util.LinkedList;
 import java.util.Optional;
 
@@ -16,13 +18,10 @@ import java.util.Optional;
 @RequestMapping("/instagram/api/v1/user")
 public class UserController {
 
+    @Autowired
     private IUserService userService;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-    public UserController(IUserService userService){
-        this.userService = userService;
-    }
 
     @PostMapping
     public ResponseDTO<UserDTO> addUser(@RequestBody UserDTO userDTO){
@@ -35,11 +34,13 @@ public class UserController {
 
     @GetMapping("/{id}")
     public ResponseDTO<UserDTO> getUser(@PathVariable("id") Long id){
-        logger.info("User Requested for getting user with id:" +id);
+        logger.info("User Requested for getting user with id: {}" ,id);
         Optional<UserDTO> userDTOOptional  = userService.getUser(id);
         if(userDTOOptional.isPresent()){
+            logger.info("User Recieved", kv("user", userDTOOptional.get()));
             return Mapper.responseDTOSingle(userDTOOptional, "You have got User" );
         }
+        logger.error("User doesn't exist with {}", kv("userId", id));
         return Mapper.responseDTOSingle(null, "User Doesn't exist of given ID");
     }
 
@@ -54,11 +55,12 @@ public class UserController {
 
     @DeleteMapping("/{id}")
     public ResponseDTO deleteUser(@PathVariable("id") Long id){
-        boolean isDeleted = userService.deleteUser(id);
-        if(isDeleted){
-            return Mapper.responseDTO(new LinkedList<>(), "User deleted");
+        try{
+            userService.deleteUser(id);
+            return Mapper.objectDeleted("User deleted");
+        }catch (UserDoesNotExistException e) {
+            return Mapper.responseDTOSingle(null, e.getMessage());
         }
-        return Mapper.responseDTOSingle(null, "Failed to deleted User");
     }
 
 }
