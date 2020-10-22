@@ -2,7 +2,6 @@ package com.zolostays.instagram.service;
 
 import com.zolostays.instagram.dto.ImageDTO;
 import com.zolostays.instagram.dto.PostDTO;
-import com.zolostays.instagram.dto.ResponseDTO;
 import com.zolostays.instagram.exception.BaseException;
 import com.zolostays.instagram.exception.PostDoesNotExistException;
 import com.zolostays.instagram.exception.UserDoesNotExistException;
@@ -12,16 +11,12 @@ import com.zolostays.instagram.model.User;
 import com.zolostays.instagram.repository.ImageRepository;
 import com.zolostays.instagram.repository.PostRepository;
 import com.zolostays.instagram.repository.UserRepository;
-import com.zolostays.instagram.util.Mapper;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import javax.management.BadAttributeValueExpException;
 import javax.transaction.Transactional;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
