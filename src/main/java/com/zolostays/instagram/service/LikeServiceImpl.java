@@ -1,8 +1,12 @@
 package com.zolostays.instagram.service;
 
 import com.zolostays.instagram.dto.LikeDTO;
+import com.zolostays.instagram.dto.PostDTO;
 import com.zolostays.instagram.dto.ResponseDTO;
 import com.zolostays.instagram.dto.UserDTO;
+import com.zolostays.instagram.exception.BaseException;
+import com.zolostays.instagram.exception.PostDoesNotExistException;
+import com.zolostays.instagram.exception.UserDoesNotExistException;
 import com.zolostays.instagram.model.Like;
 import com.zolostays.instagram.model.Post;
 import com.zolostays.instagram.model.User;
@@ -11,78 +15,98 @@ import com.zolostays.instagram.repository.PostRepository;
 import com.zolostays.instagram.repository.UserRepository;
 import com.zolostays.instagram.util.Mapper;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.transaction.Transactional;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Map;
+import java.util.List;
 import java.util.Optional;
 
 
 @Component
 public class LikeServiceImpl implements ILikeService{
 
+    @Autowired
     private PostRepository postRepository;
+
+    @Autowired
     private UserRepository userRepository;
+
+    @Autowired
     private LikeRepository likeRepository;
 
     ModelMapper modelMapper = new ModelMapper();
 
-    public LikeServiceImpl(PostRepository postRepository, UserRepository userRepository, LikeRepository likeRepository){
-        this.userRepository = userRepository;
-        this.postRepository = postRepository;
-        this.likeRepository = likeRepository;
+    public LikeServiceImpl(){
         modelMapper.typeMap(Like.class, LikeDTO.class).addMapping(
-                Like::getPostId, LikeDTO::setPostDTO
-        ).addMapping(Like::getUser, LikeDTO::setUserDTO);
+                Like::getPostId, LikeDTO::setPost_DTO
+        ).addMapping(Like::getUser, LikeDTO::setUser_DTO);
+        modelMapper.typeMap(Post.class, PostDTO.class).addMapping(
+                Post::getUser, PostDTO::setUser_DTO
+        ).addMapping(Post::getImageList, PostDTO::setList_image_DTO);
     }
 
     @Transactional
     @Override
-    public ResponseDTO likePost(Long user_id, Long post_id) {
-        if(userRepository.existsById(user_id)) {
-            if (postRepository.existsById(post_id)) {
-                if(likeRepository.existsByUserAndPostId(userRepository.findById(user_id).get(),
-                        postRepository.findById(post_id).get())){
-                    return dislikePost(user_id, post_id);
-                }
-                Post post = postRepository.findById(post_id).get();
-                User user = userRepository.findById(user_id).get();
-                Like like = new Like();
-                like.setPostId(post);
-                like.setUser(user);
-                return Mapper.responseDTOSingle(modelMapper.map(likeRepository.save(like), LikeDTO.class), "You have liked the post");
-            }else{
-                return Mapper.objectDoesNotExist("Post doesn't exist of given post id");
-            }
-        }else{
-            return Mapper.objectDoesNotExist("User doesn't exist who is supposed to like the post");
+    public Optional<LikeDTO> likePost(Long user_id, Long post_id) throws BaseException {
+
+        Optional<User> userOptional = userRepository.findById(user_id);
+        if(userOptional.isEmpty()){
+            throw new UserDoesNotExistException(user_id.toString());
         }
+        Optional<Post> postOptional = postRepository.findById(post_id);
+        if(postOptional.isEmpty()){
+            throw new PostDoesNotExistException(post_id.toString());
+        }
+
+        if(likeRepository.existsByUserAndPostId(userOptional.get(), postOptional.get())){
+            return Optional.empty();
+        }
+        Like like = new Like();
+        like.setUser(userOptional.get());
+        like.setPostId(postOptional.get());
+        return Optional.of(modelMapper.map(likeRepository.save(like), LikeDTO.class));
     }
 
     @Override
-    public ResponseDTO getAllLike(Long user_id, Long post_id) {
-        return userRepository.findById(user_id).map(user -> {
-            return postRepository.findById(post_id).map(post -> {
-                return Mapper.responseDTO(likeRepository.findAllByPostId(post), "You have got all the likes");
-            }).orElse(Mapper.objectDoesNotExist("Post Doesn't Exist"));
-        }).orElse(Mapper.responseDTOSingle(null, "User Doesn't exist"));
+    public List<LikeDTO> getAllLike(Long user_id, Long post_id) throws BaseException{
+
+        Optional<User> userOptional = userRepository.findById(user_id);
+
+        if(userOptional.isEmpty()){
+            throw new UserDoesNotExistException(user_id.toString());
+        }
+        Optional<Post> postOptional = postRepository.findById(post_id);
+        if(postOptional.isEmpty()){
+            throw new PostDoesNotExistException(post_id.toString());
+        }
+
+        List<Like> likeList = likeRepository.findAllByPostId(postOptional.get());
+        Type listType = new TypeToken<List<LikeDTO>>(){}.getType();
+        List<LikeDTO> likeDTOList = modelMapper.map(likeList, listType);
+        return likeDTOList;
     }
 
     @Override
     @Transactional
-    public ResponseDTO dislikePost(Long user_id, Long post_id) {
-        return postRepository.findById(post_id).map(post -> {
-            Optional<User> optionalUser = userRepository.findById(user_id);
-            if (optionalUser.isPresent()){
-                if(likeRepository.existsByUserAndPostId(optionalUser.get(), post)){
-                    likeRepository.deleteByPostIdAndUser(post, optionalUser.get());
-                    return Mapper.responseDTOSingle(new ArrayList<>(),"You disliked the post");
-                }
-                return Mapper.responseDTOSingle(null, "User is not authenticated");
-            }else {
-                return Mapper.responseDTONotFound(new ArrayList<>(), "User doesn't exist");
-            }
-        }).orElse(Mapper.objectDoesNotExist("No such post exist"));
+    public boolean dislikePost(Long user_id, Long post_id) throws BaseException {
+
+        Optional<User> userOptional = userRepository.findById(user_id);
+
+        if(userOptional.isEmpty()){
+            throw new UserDoesNotExistException(user_id.toString());
+        }
+        Optional<Post> postOptional = postRepository.findById(post_id);
+        if(postOptional.isEmpty()){
+            throw new PostDoesNotExistException(post_id.toString());
+        }
+        if(likeRepository.existsByUserAndPostId(userOptional.get(), postOptional.get())){
+            likeRepository.deleteByPostIdAndUser(postOptional.get(), userOptional.get());
+            return true;
+        }
+        return  false;
     }
 }

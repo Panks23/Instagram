@@ -3,6 +3,7 @@ package com.zolostays.instagram.controller;
 
 import com.zolostays.instagram.dto.ResponseDTO;
 import com.zolostays.instagram.dto.UserDTO;
+import com.zolostays.instagram.exception.BaseException;
 import com.zolostays.instagram.exception.UserDoesNotExistException;
 import com.zolostays.instagram.service.IUserService;
 import com.zolostays.instagram.util.Mapper;
@@ -46,13 +47,15 @@ public class UserController {
     @PutMapping("/{id}")
     public ResponseDTO updateUser(@RequestBody UserDTO userDTO, @PathVariable("id") Long user_id){
         logger.info("User Requested for updating with {}", kv("userID", user_id));
-        Optional<UserDTO> userDTOOptional  = userService.updateUser(userDTO, user_id);
-        if(userDTOOptional.isPresent()){
+        try {
+            Optional<UserDTO> userDTOOptional  = userService.updateUser(userDTO, user_id);
             logger.info("User Updated with {}", kv("userId", user_id));
             return Mapper.responseDTOSingle(userDTOOptional, "User updated" );
+        }catch (BaseException baseException){
+            logger.error("Failed to update User with {}", kv("userID", user_id));
+            return Mapper.responseDTOSingle(null, baseException.getMessage());
         }
-        logger.error("Failed to update User with {}", kv("userID", user_id));
-        return Mapper.responseDTOSingle(null, "Failed to update User");
+
     }
 
     @DeleteMapping("/{id}")

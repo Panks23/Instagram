@@ -1,27 +1,29 @@
 package com.zolostays.instagram.service;
 
 import com.zolostays.instagram.dto.CommentDTO;
-import com.zolostays.instagram.dto.PostDTO;
-import com.zolostays.instagram.dto.ResponseDTO;
+import com.zolostays.instagram.exception.BaseException;
+
+import java.util.List;
 
 public interface ICommentService {
 
-    ResponseDTO createComment(CommentDTO commentDTO, Long user_id, Long post_id);
+    CommentDTO createComment(CommentDTO commentDTO, Long user_id, Long post_id) throws BaseException;
 
-    ResponseDTO getAllComment(Long user_id, Long post_id);
+    List<CommentDTO> getAllComment(Long user_id, Long post_id) throws BaseException;
 
-    ResponseDTO replyToComment(CommentDTO commentDTO, Long comment_id, Long user_id, Long post_id);
+    CommentDTO updateComment(CommentDTO commentDTO, Long user_id, Long post_id, Long comment_id) throws BaseException;
+
+    void deleteComment(Long user_id,  Long post_id, Long comment_id) throws BaseException;
 
 
-    ResponseDTO updateReplyToComment(CommentDTO commentDTO, Long comment_id, Long user_id, Long reply_id, Long post_id);
+    CommentDTO reply(CommentDTO commentDTO, Long comment_id, Long user_id, Long post_id) throws BaseException;
 
-    ResponseDTO deleteReplyToComment(Long user_id, Long post_id, Long comment_id, Long reply_id);
 
-    ResponseDTO getCommentAndReplies(Long user_id, Long post_id, Long comment_id);
+    CommentDTO updateReply(CommentDTO commentDTO, Long comment_id, Long user_id, Long reply_id, Long post_id) throws BaseException;
 
-    ResponseDTO updateComment(CommentDTO commentDTO, Long user_id, Long post_id, Long comment_id);
+    void deleteReply(Long user_id, Long post_id, Long comment_id, Long reply_id) throws BaseException;
 
-    ResponseDTO deleteComment(Long user_id,  Long post_id, Long comment_id);
+    List<CommentDTO> getCommentAndReplies(Long user_id, Long post_id, Long comment_id) throws BaseException;
 
 
 }

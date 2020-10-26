@@ -1,7 +1,5 @@
 package com.zolostays.instagram.dto;
 
-import com.zolostays.instagram.model.Post;
-import com.zolostays.instagram.model.User;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,9 +13,9 @@ public class LikeDTO {
 
     private Long id;
 
-    private PostDTO postDTO;
+    private PostDTO post_DTO;
 
-    private UserDTO userDTO;
+    private UserDTO user_DTO;
 
-    private Timestamp timeStamp;
+    private Timestamp time_stamp;
 }

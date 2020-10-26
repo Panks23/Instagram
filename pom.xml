@@ -76,11 +76,11 @@
             <scope>test</scope>
         </dependency>
 <!--        For Logging in jason-->
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>1.2.3</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>ch.qos.logback</groupId>-->
+<!--            <artifactId>logback-classic</artifactId>-->
+<!--            <version>1.2.3</version>-->
+<!--        </dependency>-->
 <!--&lt;!&ndash;         ch.qos.logback.contrib.jackson.JacksonJsonFormatter&ndash;&gt;-->
 <!--        <dependency>-->
 <!--            <groupId>ch.qos.logback.contrib</groupId>-->

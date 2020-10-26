@@ -1,12 +1,15 @@
 package com.zolostays.instagram.service;
 
-import com.zolostays.instagram.dto.ResponseDTO;
+import com.zolostays.instagram.dto.LikeDTO;
+import com.zolostays.instagram.exception.BaseException;
+import java.util.List;
+import java.util.Optional;
 
 public interface ILikeService {
 
-    ResponseDTO likePost(Long user_id, Long post_id);
+    Optional<LikeDTO> likePost(Long user_id, Long post_id) throws BaseException;
 
-    ResponseDTO getAllLike(Long user_id, Long post_id);
+    List<LikeDTO> getAllLike(Long user_id, Long post_id) throws BaseException;
 
-    ResponseDTO dislikePost(Long user_id, Long post_id);
+    boolean dislikePost(Long user_id, Long post_id) throws BaseException;
 }

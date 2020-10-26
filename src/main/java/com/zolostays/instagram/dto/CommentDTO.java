@@ -16,13 +16,13 @@ public class CommentDTO {
     private String comment;
 
 
-    private PostDTO postDTO;
+    private PostDTO post_DTO;
 
 
-    private UserDTO userDTO;
+    private UserDTO user_DTO;
 
 
     private Comment commentId;
 
-    private Timestamp timeStamp;
+    private Timestamp time_stamp;
 }

@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
-
 import java.sql.Timestamp;
 
 @Data
@@ -16,9 +15,9 @@ public class FollowMapDTO {
 
     private Long id;
 
-    private User followedBy;
+    private UserDTO followed_by;
 
-    private User followedTo;
+    private UserDTO followed_to;
 
-    private Timestamp timeStamp;
+    private Timestamp time_stamp;
 }
