@@ -37,6 +37,8 @@ public class PostServiceImpl implements IPostService{
     public PostServiceImpl(){
         modelMapper.typeMap(Post.class, PostDTO.class).addMapping(Post::getUser, PostDTO::setUser_DTO)
                 .addMapping(Post::getImageList, PostDTO::setList_image_DTO);
+        modelMapper.typeMap(PostDTO.class, Post.class).addMapping(PostDTO::getUser_DTO, Post::setUser)
+                .addMapping(PostDTO::getList_image_DTO, Post::setImageList);
     }
 
 
@@ -91,9 +93,9 @@ public class PostServiceImpl implements IPostService{
         Optional<User> userOptional = userRepository.findById(user_id);
         if(userOptional.isPresent()){
             post.setUser(userOptional.get());
-            post = savePost(post);
-            List<ImageDTO> imageDTOList = saveImageForPost(post, listImageDTO);
-            PostDTO resultPostDTO = modelMapper.map(post, PostDTO.class);
+            Post resultPost = postRepository.save(post);
+            List<ImageDTO> imageDTOList = saveImageForPost(resultPost, listImageDTO);
+            PostDTO resultPostDTO = modelMapper.map(resultPost, PostDTO.class);
             resultPostDTO.setList_image_DTO(imageDTOList);
             return resultPostDTO;
         }
@@ -102,24 +104,18 @@ public class PostServiceImpl implements IPostService{
         }
     }
 
-    public Post savePost(Post post){
-        return postRepository.save(post);
-    }
 
     public List<ImageDTO> saveImageForPost(Post post, List<ImageDTO> listImageDTO){
-        List<Image> listOfimage = listImageDTO.stream().map(imageDTO -> {
-            Image image = modelMapper.map(imageDTO, Image.class);
-            image.setPost(post);
-            return image;
+        Type listType = new TypeToken<List<Image>>(){}.getType();
+        List<Image> listOfImage = modelMapper.map(listImageDTO, listType);
+        listOfImage = listOfImage.stream().map(image -> {
+             image.setPost(post);
+             return image;
         }).collect(Collectors.toList());
-        listOfimage = imageRepository.saveAll(listOfimage);
-        listImageDTO = listOfimage.stream().map(image ->
-                modelMapper.map(image, ImageDTO.class) )
-                .collect(
-                        Collectors.toList()
-                );
+        listOfImage = imageRepository.saveAll(listOfImage);
 
-        return listImageDTO;
+        listType = new TypeToken<List<ImageDTO>>(){}.getType();
+        return modelMapper.map(listOfImage, listType);
     }
 
     @Override

@@ -12,7 +12,7 @@ public class PostData {
                 .setList_image_DTO(Arrays.asList(ImageData.getNewImageDTO()));
     }
 
-    public PostDTO getUpdatedPostDTO(){
+    public static PostDTO getUpdatedPostDTO(){
         return new PostDTO().setId(1l).setCaption("Hi Caption Updated")
                 .setUser_DTO(UserData.getNewUserDTO())
                 .setList_image_DTO(Arrays.asList(ImageData.getNewImageDTO()));
