@@ -43,7 +43,8 @@ public class FollowServiceImpl implements IFollowService {
        User targetUser = userRepository.findById(follow_id).get();
 
        if(!followMapRepository.existsByFollowedByAndFollowedTo(user, targetUser)){
-           return Optional.of(modelMapper.map(followMapRepository.save(new FollowMap().setFollowedBy(user).setFollowedTo(targetUser)), FollowMapDTO.class));
+           FollowMap followMap = new FollowMap().setFollowedBy(user).setFollowedTo(targetUser);
+           return Optional.of(modelMapper.map(followMapRepository.save(followMap) , FollowMapDTO.class));
        }
        return Optional.empty();
     }

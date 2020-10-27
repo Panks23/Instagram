@@ -13,16 +13,12 @@ import com.zolostays.instagram.model.User;
 import com.zolostays.instagram.repository.LikeRepository;
 import com.zolostays.instagram.repository.PostRepository;
 import com.zolostays.instagram.repository.UserRepository;
-import com.zolostays.instagram.util.Mapper;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
 import javax.transaction.Transactional;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
+import java.lang.reflect.Type;import java.util.List;
 import java.util.Optional;
 
 
