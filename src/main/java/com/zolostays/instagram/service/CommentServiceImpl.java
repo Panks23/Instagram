@@ -64,6 +64,7 @@ public class CommentServiceImpl  implements ICommentService{
         Post post = postUtil.getPost(post_id);
         Comment originalComment = commentUtil.getComment(comment_id, user, post);
         originalComment.setComment(commentDTO.getComment());
+        System.out.println(originalComment);
         return modelMapper.map(commentRepository.save(originalComment), CommentDTO.class);
     }
 
