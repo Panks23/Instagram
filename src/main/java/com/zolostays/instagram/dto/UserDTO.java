@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
+import javax.validation.constraints.NotNull;
 import java.sql.Timestamp;
 import java.util.Date;
 
@@ -23,4 +24,5 @@ public class UserDTO {
     private Gender gender;
     private int  phoneNo;
     private Timestamp timestamp;
+
 }
