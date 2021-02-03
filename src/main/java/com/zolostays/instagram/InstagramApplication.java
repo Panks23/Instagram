@@ -1,5 +1,6 @@
 package com.zolostays.instagram;
 
+import com.zolostays.instagram.context.RequestContextFilter;
 import com.zolostays.instagram.dto.CommentDTO;
 import com.zolostays.instagram.dto.PostDTO;
 import com.zolostays.instagram.model.Comment;
@@ -26,6 +27,10 @@ public class InstagramApplication {
                 Post::getUser, PostDTO::setUser_DTO
         ).addMapping(Post::getImageList, PostDTO::setList_image_DTO);
         return modelMapper;
+    }
+
+    @Bean public RequestContextFilter getFilter(){
+        return new RequestContextFilter();
     }
 
 }

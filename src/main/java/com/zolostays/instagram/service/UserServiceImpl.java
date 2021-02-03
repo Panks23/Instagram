@@ -1,5 +1,6 @@
 package com.zolostays.instagram.service;
 
+import com.zolostays.instagram.context.RequestContext;
 import com.zolostays.instagram.dto.UserDTO;
 import com.zolostays.instagram.exception.UserDoesNotExistException;
 import com.zolostays.instagram.model.User;
@@ -59,6 +60,11 @@ public class UserServiceImpl implements IUserService {
     @Override
     public Optional<UserDTO> addUser(UserDTO userDTO) {
         User user = modelMapper.map(userDTO, User.class);
+        UserDTO userDTO1 = RequestContext.getAttribute("user");
+        System.out.println("Request Context Start");
+        System.out.println("Request Context Start");
+        System.out.println(userDTO1);
+        System.out.println("Request Context End");
         if(!userRepository.existsByUsername(user.getUsername())) {
             user = userRepository.save(user);
             UserDTO resultUserDTO = modelMapper.map(user, UserDTO.class);

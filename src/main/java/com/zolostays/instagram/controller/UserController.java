@@ -2,6 +2,7 @@ package com.zolostays.instagram.controller;
 
 
 import com.zolostays.instagram.annotation.AnnotationTest;
+import com.zolostays.instagram.context.RequestContext;
 import com.zolostays.instagram.dto.ResponseDTO;
 import com.zolostays.instagram.dto.UserDTO;
 import com.zolostays.instagram.dto.UserRequestData;
@@ -32,6 +33,7 @@ public class UserController {
     @AnnotationTest(type = 3)
     public ResponseDTO<UserDTO> addUser(){
         logger.info("Got a request to Create User");
+        RequestContext.setAttributes("user", userRequestData.getUserDTO());
         Optional<UserDTO> userDTOOptional = userService.addUser(userRequestData.getUserDTO());
         System.out.println("Hi User");
         System.out.println("Hi User");
